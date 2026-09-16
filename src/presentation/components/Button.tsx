@@ -52,9 +52,15 @@ const styles = StyleSheet.create({
     fontFamily: HEADING_FONT_FAMILY,
     fontSize: 16,
   },
-  textButton: {},
+  textButton: {
+    borderWidth: 1,
+    borderColor: colors.pokedexRed,
+    borderRadius: RADIUS,
+    paddingHorizontal: 18,
+    paddingVertical: 9,
+  },
   textButtonText: {
-    color: colors.white,
+    color: colors.pokedexRed,
     fontFamily: HEADING_FONT_FAMILY,
     fontSize: 13,
     fontWeight: '600',

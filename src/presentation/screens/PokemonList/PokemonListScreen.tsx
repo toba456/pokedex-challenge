@@ -119,7 +119,7 @@ function ListContent({
 
 function LoadMoreError({ message, onRetry }: { message: string; onRetry: () => void }) {
   return (
-    <View style={styles.loadMoreErrorRow} testID="pokemon-list-load-more-error">
+    <View style={styles.loadMoreErrorContainer} testID="pokemon-list-load-more-error">
       <Text style={styles.loadMoreErrorText}>{message}</Text>
       <Button
         variant="text"
@@ -197,18 +197,18 @@ const styles = StyleSheet.create({
   footer: {
     paddingVertical: 20,
   },
-  loadMoreErrorRow: {
-    flexDirection: 'row',
+  loadMoreErrorContainer: {
     alignItems: 'center',
-    justifyContent: 'center',
-    gap: 12,
-    paddingVertical: 12,
+    gap: 16,
+    borderTopWidth: StyleSheet.hairlineWidth,
+    borderTopColor: colors.separator,
+    paddingVertical: 24,
     paddingHorizontal: 20,
   },
   loadMoreErrorText: {
-    flexShrink: 1,
     color: colors.offWhiteMuted,
     fontFamily: HEADING_FONT_FAMILY,
     fontSize: 13,
+    textAlign: 'center',
   },
 });
