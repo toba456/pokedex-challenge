@@ -1,5 +1,6 @@
 import { POKEAPI_BASE_URL } from '../../../shared/constants';
 import { PokemonApiError } from './PokemonApiError';
+import { PokemonDetailDTO } from './PokemonDetailDTO';
 import { PokemonListResponseDTO } from './PokemonListDTO';
 
 export class PokemonRemoteDataSource {
@@ -18,6 +19,26 @@ export class PokemonRemoteDataSource {
 
     try {
       return (await response.json()) as PokemonListResponseDTO;
+    } catch (error) {
+      throw new PokemonApiError('parse', 'La respuesta de la PokéAPI no es un JSON válido', error);
+    }
+  }
+
+  async getPokemonDetail(id: number): Promise<PokemonDetailDTO> {
+    let response: Response;
+
+    try {
+      response = await fetch(`${POKEAPI_BASE_URL}/pokemon/${id}`);
+    } catch (error) {
+      throw new PokemonApiError('network', 'No se pudo conectar con la PokéAPI', error);
+    }
+
+    if (!response.ok) {
+      throw new PokemonApiError('http', `La PokéAPI respondió con un error (status ${response.status})`);
+    }
+
+    try {
+      return (await response.json()) as PokemonDetailDTO;
     } catch (error) {
       throw new PokemonApiError('parse', 'La respuesta de la PokéAPI no es un JSON válido', error);
     }
