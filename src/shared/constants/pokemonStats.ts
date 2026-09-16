@@ -1,8 +1,5 @@
 import { PokemonStatName } from '../types';
 
-// Traducción a texto legible de los nombres kebab-case que trae la PokéAPI
-// (ej. "special-attack"): el dato crudo se conserva tal cual en domain/data,
-// esta tabla es la única que sabe cómo mostrarlo .
 export const POKEMON_STAT_LABELS: Record<PokemonStatName, string> = {
   hp: 'PS',
   attack: 'Ataque',

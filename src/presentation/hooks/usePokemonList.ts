@@ -15,11 +15,6 @@ export interface UsePokemonListResult {
   loadMoreError: string | null;
 }
 
-// El hook siempre dispara la carga al montar, así que el estado 'loading' es
-// el valor inicial: seteárselo desde adentro del efecto generaría un render
-// en cascada evitable (regla react-hooks/set-state-in-effect). 'idle' queda
-// declarado en RequestState (sección 6) para hooks que sí necesiten un estado
-// previo a disparar la carga, pero este no llega a producirlo en runtime.
 export const initialPokemonListState: RequestState<PokemonListItem[]> = { status: 'loading' };
 
 export function usePokemonList(): UsePokemonListResult {

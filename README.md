@@ -110,13 +110,3 @@ listado como en el detalle, mediante un tipo `RequestState<T>` compartido
 
 ## Estructura de carpetas
 
-Ver el detalle completo en `CLAUDE.md` (sección 4). Resumen:
-
-```
-src/
-  domain/        → entidades, interfaces de repositorio, casos de uso
-  data/          → datasources, implementación de repositorios, mappers
-  presentation/  → screens, componentes, navegación, contexto/estado
-  shared/        → types, utils, constants
-```
-
