@@ -14,3 +14,12 @@ export const MAX_CONTENT_WIDTH = 680;
 // llegar al botón "Volver" cuando el alto disponible es chico), se muestran
 // lado a lado aprovechando el ancho sobrante.
 export const DETAIL_HERO_LANDSCAPE_RATIO = 0.4;
+
+// El listado, a diferencia del detalle, no tiene una columna de lectura larga
+// que proteger (son filas cortas: imagen + nombre), así que en landscape no
+// se centra con MAX_CONTENT_WIDTH: se alinea a la izquierda y usa un tope más
+// generoso, para no dejar el margen vacío de ambos lados que sí tiene sentido
+// en portrait. Tope absoluto (960) para que las filas no vuelvan a verse con
+// demasiado aire a la derecha en pantallas muy anchas.
+export const LIST_CONTENT_WIDTH_LANDSCAPE_RATIO = 0.7;
+export const LIST_MAX_CONTENT_WIDTH_LANDSCAPE = 960;

@@ -5,7 +5,13 @@ import { Button, PokemonListItem, PokemonListItemSkeleton } from '../../componen
 import { usePokemonList } from '../../hooks';
 import { useNavigationActions } from '../../navigation';
 import { PokemonListItem as PokemonListItemEntity } from '@domain/entities';
-import { colors, HEADING_FONT_FAMILY, MAX_CONTENT_WIDTH } from '@shared/constants';
+import {
+  colors,
+  HEADING_FONT_FAMILY,
+  LIST_CONTENT_WIDTH_LANDSCAPE_RATIO,
+  LIST_MAX_CONTENT_WIDTH_LANDSCAPE,
+  MAX_CONTENT_WIDTH,
+} from '@shared/constants';
 import type { RequestState } from '@shared/types';
 import { getSafeAreaInsets } from '@shared/utils';
 
@@ -139,12 +145,19 @@ function LoadMoreError({ message, onRetry }: { message: string; onRetry: () => v
 function PokemonListScreenComponent() {
   const { state, loadMore, isLoadingMore, loadMoreError } = usePokemonList();
   const { goToDetail } = useNavigationActions();
-  const { width } = useWindowDimensions();
-  const contentWidth = Math.min(width, MAX_CONTENT_WIDTH);
+  const { width, height } = useWindowDimensions();
+  // En landscape el listado no protege una columna de lectura larga (son
+  // filas cortas), así que en vez de centrarse con MAX_CONTENT_WIDTH se
+  // alinea a la izquierda y usa más ancho, evitando el margen vacío de ambos
+  // lados que sí tiene sentido en portrait.
+  const isLandscape = width > height;
+  const contentWidth = isLandscape
+    ? Math.min(width * LIST_CONTENT_WIDTH_LANDSCAPE_RATIO, LIST_MAX_CONTENT_WIDTH_LANDSCAPE)
+    : Math.min(width, MAX_CONTENT_WIDTH);
 
   return (
     <View style={styles.safeArea}>
-      <View style={[styles.content, { width: contentWidth }]}>
+      <View style={[styles.content, { width: contentWidth, alignSelf: isLandscape ? 'flex-start' : 'center' }]}>
         <Text style={styles.title}>Pokédex</Text>
         <ListContent state={state} onPress={goToDetail} onEndReached={loadMore} isLoadingMore={isLoadingMore} />
         {loadMoreError !== null && <LoadMoreError message={loadMoreError} onRetry={loadMore} />}

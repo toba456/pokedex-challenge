@@ -134,9 +134,19 @@ de forma independiente a la derecha. Apilado en landscape obligaba a scrollear
 para llegar al botón "Volver" en tablets apaisadas; lado a lado, el contenido
 entra completo sin scroll en el alto disponible. El estado de carga
 (`PokemonDetailSkeleton`) sigue el mismo criterio para no pegar un salto de
-layout cuando terminan de cargar los datos. El listado no lo necesita: al ser
-una lista con scroll natural (y paginada), no tiene un "final" fijo que deba
-entrar sin scroll.
+layout cuando terminan de cargar los datos.
+
+### Landscape en el listado
+
+El listado no tiene el problema de scroll del detalle (es una lista con
+scroll natural y paginada, sin un "final" fijo), pero sí tenía el mismo
+problema de márgenes vacíos que el detalle en pantallas anchas. A diferencia
+del resto de la app, en landscape el listado no se centra con
+`MAX_CONTENT_WIDTH`: no protege una columna de lectura larga (son filas
+cortas, imagen + nombre), así que se alinea a la izquierda y usa un tope más
+generoso (`LIST_MAX_CONTENT_WIDTH_LANDSCAPE`, `shared/constants/layout.ts`),
+para que las filas ocupen más pantalla en vez de dejar aire vacío a ambos
+lados.
 
 ## Funcionalidades bonus implementadas
 
