@@ -1,7 +1,7 @@
 import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { PokemonListItem as PokemonListItemEntity } from '../../domain/entities';
-import { colors, HEADING_FONT_FAMILY, MONOSPACE_FONT_FAMILY } from '../../shared/constants';
+import { colors, HEADING_FONT_FAMILY, MONOSPACE_FONT_FAMILY, RADIUS } from '../../shared/constants';
 
 interface PokemonListItemProps {
   pokemon: PokemonListItemEntity;
@@ -10,13 +10,19 @@ interface PokemonListItemProps {
 
 export function PokemonListItem({ pokemon, onPress }: PokemonListItemProps) {
   return (
-    <Pressable style={styles.container} onPress={() => onPress(pokemon.id)} testID={`pokemon-item-${pokemon.id}`}>
-      <View style={styles.accentBar} />
-      <Image source={{ uri: pokemon.imageUrl }} style={styles.image} resizeMode="contain" />
+    <Pressable
+      style={({ pressed }) => [styles.container, pressed && styles.containerPressed]}
+      onPress={() => onPress(pokemon.id)}
+      testID={`pokemon-item-${pokemon.id}`}
+    >
+      <View style={styles.imageContainer}>
+        <Image source={{ uri: pokemon.imageUrl }} style={styles.image} resizeMode="contain" />
+      </View>
       <View style={styles.info}>
         <Text style={styles.id}>#{String(pokemon.id).padStart(3, '0')}</Text>
         <Text style={styles.name}>{pokemon.name}</Text>
       </View>
+      <Text style={styles.chevron}>›</Text>
     </Pressable>
   );
 }
@@ -25,25 +31,28 @@ const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: colors.nearBlack,
-    marginHorizontal: 16,
-    marginVertical: 6,
-    borderRadius: 4,
-    overflow: 'hidden',
+    paddingHorizontal: 20,
+    paddingVertical: 16,
   },
-  accentBar: {
-    width: 4,
-    alignSelf: 'stretch',
-    backgroundColor: colors.pokedexRed,
+  containerPressed: {
+    backgroundColor: colors.rowPressed,
+  },
+  imageContainer: {
+    width: 72,
+    height: 72,
+    borderRadius: RADIUS,
+    backgroundColor: colors.imageBackdrop,
+    alignItems: 'center',
+    justifyContent: 'center',
+    overflow: 'hidden',
+    marginRight: 16,
   },
   image: {
-    width: 56,
-    height: 56,
-    marginHorizontal: 12,
+    width: '78%',
+    height: '78%',
   },
   info: {
     flex: 1,
-    paddingVertical: 12,
   },
   id: {
     color: colors.offWhiteMuted,
@@ -56,5 +65,10 @@ const styles = StyleSheet.create({
     fontSize: 18,
     marginTop: 2,
     textTransform: 'capitalize',
+  },
+  chevron: {
+    color: colors.offWhiteMuted,
+    fontSize: 24,
+    marginLeft: 8,
   },
 });

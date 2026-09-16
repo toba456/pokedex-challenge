@@ -10,4 +10,11 @@ export const colors = {
   // Track de las barras de stats en el detalle (sección 9): un gris-azulado
   // apenas por encima del near-black, no un gris neutro genérico.
   statTrack: '#2A2B33',
+  // Hairline entre filas del listado: sutil sobre el fondo, no blanco puro.
+  separator: '#26272F',
+  // Fondo del contenedor de imagen en el listado, para que el radius se note
+  // aunque el sprite tenga transparencia.
+  imageBackdrop: '#1D1E26',
+  // Highlight discreto al presionar una fila del listado.
+  rowPressed: '#1B1C24',
 } as const;
