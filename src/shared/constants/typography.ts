@@ -1,6 +1,6 @@
 import { Platform } from 'react-native';
 
-// Fuente rounded del sistema para titulares (sección 9): SF Rounded en iOS,
+// Fuente rounded del sistema para titulares: SF Rounded en iOS,
 // Roboto (peso medium, la variante "amigable" disponible sin fuentes custom)
 // en Android.
 export const HEADING_FONT_FAMILY = Platform.select({

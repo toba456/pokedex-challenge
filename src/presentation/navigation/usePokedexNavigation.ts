@@ -2,8 +2,6 @@ import { useContext } from 'react';
 
 import { PokedexNavigationContext } from './PokedexNavigationContext';
 
-// Nombre distinto a `useNavigation` de React Navigation a propósito: acá no hay
-// ninguna librería de terceros involucrada, solo Context + useReducer (sección 5).
 export function usePokedexNavigation() {
   const context = useContext(PokedexNavigationContext);
 

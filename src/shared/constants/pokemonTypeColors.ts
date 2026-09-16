@@ -1,6 +1,6 @@
 import { PokemonType } from '../types';
 
-// Colores oficiales por tipo (sección 9 del CLAUDE.md): el listado no expone
+// Colores oficiales por tipo: el listado no expone
 // el tipo de cada Pokémon sin un fetch adicional, así que este sistema de
 // color es exclusivo de la pantalla de detalle, donde el dato sí está
 // disponible sin requests extra.

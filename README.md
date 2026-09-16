@@ -61,6 +61,36 @@ Todo lo demás (navegación, estado global, networking, persistencia de la
 *lógica* de acceso) está implementado únicamente con APIs de React Native, Expo
 core y JavaScript estándar.
 
+### Decisión de navegación
+ 
+Se implementó un navegador manual con estado local (`useState`/context simple en el
+componente raíz: `'list' | 'detail'` + Pokémon seleccionado), en lugar de una
+librería de navegación como React Navigation o `expo-router`.
+ 
+**Por qué, sabiendo que ambas alternativas existen:** el flujo real de la app es
+lineal y de solo dos pantallas (listado → detalle → volver), sin tabs, deep linking
+ni stacks anidados — exactamente el caso donde una librería de navegación no aporta
+nada que no resuelva un `useState`. React Navigation se descarta directo por ser
+librería de terceros (viola la restricción del enunciado). `expo-router` es más
+discutible por venir con el core de Expo, pero arrastra dependencias adicionales
+(`react-native-screens`, `react-native-safe-area-context` y potencialmente
+`reanimated`/`gesture-handler`) que no se justifican para un flujo de 2 pantallas.
+ 
+Trade-off asumido: no hay gestos nativos de swipe-back ni animaciones de transición
+del sistema — cubre el flujo requerido sin agregar dependencias de producción.
+ 
+El enunciado pide no usar librerías externas de terceros más allá de lo que
+provee React Native/Expo. Se tomaron dos excepciones puntuales, documentadas acá:
+ 
+| Librería | Tipo | Justificación |
+|---|---|---|
+| `@react-native-async-storage/async-storage` | Producción | Es el estándar de facto para persistencia local en React Native (formó parte del core hasta RN 0.59, y sigue siendo mantenida por la comunidad RN oficial). No existe alternativa nativa equivalente sin escribir un módulo nativo propio, lo cual excede el alcance de este challenge. |
+| Jest + `@testing-library/react-native` | Desarrollo (no llega a producción) | Se interpreta que la restricción del enunciado aplica a librerías de lógica de negocio en runtime (navegación, estado, networking, UI kits), no a herramientas de desarrollo/testing, que son estándar de la industria y no forman parte del bundle de la app. |
+| ESLint + Prettier | Desarrollo | Mismo criterio que el anterior: tooling, no código de producción. |
+ 
+Todo lo demás (navegación, estado global, networking, persistencia de la
+*lógica* de acceso) está implementado únicamente con APIs de React Native, Expo
+core y JavaScript estándar.
 
 ## Estrategia de persistencia
 

@@ -3,7 +3,7 @@ import { PokemonType } from '../types';
 // Traducción a texto legible de los tipos en inglés/kebab-case que trae la
 // PokéAPI: el PokemonType interno se conserva tal cual (es la key de
 // POKEMON_TYPE_COLORS y de la lógica), esta tabla es la única que sabe cómo
-// mostrarlo (sección 9).
+// mostrarlo.
 export const POKEMON_TYPE_LABELS: Record<PokemonType, string> = {
   normal: 'Normal',
   fire: 'Fuego',
