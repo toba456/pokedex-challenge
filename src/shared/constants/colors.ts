@@ -17,4 +17,7 @@ export const colors = {
   imageBackdrop: '#1D1E26',
   // Highlight discreto al presionar una fila del listado.
   rowPressed: '#1B1C24',
+  // Bloques sólidos de los skeletons (listado y detalle): un gris sutil que
+  // se distingue del fondo pero no simula contenido real.
+  skeletonBlock: '#23242C',
 } as const;

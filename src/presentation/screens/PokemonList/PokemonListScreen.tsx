@@ -1,6 +1,6 @@
 import { ActivityIndicator, FlatList, Pressable, StyleSheet, Text, View } from 'react-native';
 
-import { PokemonListItem } from '../../components';
+import { PokemonListItem, PokemonListItemSkeleton } from '../../components';
 import { usePokemonList } from '../../hooks';
 import { usePokedexNavigation } from '../../navigation';
 import { PokemonListItem as PokemonListItemEntity } from '../../../domain/entities';
@@ -8,8 +8,24 @@ import { colors, HEADING_FONT_FAMILY } from '../../../shared/constants';
 import type { RequestState } from '../../../shared/types';
 import { getSafeAreaInsets } from '../../../shared/utils';
 
+const SKELETON_ITEM_COUNT = 7;
+const SKELETON_ITEM_KEYS = Array.from({ length: SKELETON_ITEM_COUNT }, (_, index) => index);
+
 function ItemSeparator() {
   return <View style={styles.separator} />;
+}
+
+function ListSkeleton() {
+  return (
+    <View testID="pokemon-list-skeleton">
+      {SKELETON_ITEM_KEYS.map((key) => (
+        <View key={key}>
+          <PokemonListItemSkeleton />
+          <ItemSeparator />
+        </View>
+      ))}
+    </View>
+  );
 }
 
 function ListFooter({ isLoadingMore }: { isLoadingMore: boolean }) {
@@ -36,11 +52,7 @@ function ListContent({
   isLoadingMore: boolean;
 }) {
   if (state.status === 'idle' || state.status === 'loading') {
-    return (
-      <View style={styles.centered} testID="pokemon-list-loading">
-        <ActivityIndicator color={colors.pokedexRed} size="large" />
-      </View>
-    );
+    return <ListSkeleton />;
   }
 
   if (state.status === 'error') {
