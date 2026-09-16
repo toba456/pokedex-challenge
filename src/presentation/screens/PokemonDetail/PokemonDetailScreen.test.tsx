@@ -6,6 +6,7 @@ import { usePokedexNavigation } from '../../navigation';
 import { PokemonDetailScreen } from './PokemonDetailScreen';
 
 jest.mock('../../hooks', () => ({
+  ...jest.requireActual('../../hooks/usePulseAnimation'),
   usePokemonDetail: jest.fn(),
 }));
 
@@ -43,20 +44,20 @@ describe('PokemonDetailScreen', () => {
     });
   });
 
-  it('muestra un indicador de carga en estado idle', async () => {
+  it('muestra el skeleton de carga en estado idle', async () => {
     mockedUsePokemonDetail.mockReturnValue({ status: 'idle' });
 
     const { getByTestId } = await render(<PokemonDetailScreen />);
 
-    expect(getByTestId('pokemon-detail-loading')).toBeTruthy();
+    expect(getByTestId('pokemon-detail-skeleton')).toBeTruthy();
   });
 
-  it('muestra un indicador de carga en estado loading', async () => {
+  it('muestra el skeleton de carga en estado loading', async () => {
     mockedUsePokemonDetail.mockReturnValue({ status: 'loading' });
 
     const { getByTestId } = await render(<PokemonDetailScreen />);
 
-    expect(getByTestId('pokemon-detail-loading')).toBeTruthy();
+    expect(getByTestId('pokemon-detail-skeleton')).toBeTruthy();
   });
 
   it('muestra el mensaje de error en estado error', async () => {

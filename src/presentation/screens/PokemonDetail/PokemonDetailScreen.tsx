@@ -1,5 +1,6 @@
-import { ActivityIndicator, Image, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Image, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
+import { PokemonDetailSkeleton } from '../../components';
 import { PokemonDetail, PokemonStat } from '../../../domain/entities';
 import {
   colors,
@@ -104,11 +105,7 @@ function PokemonDetailContent({ id, onGoToList }: { id: number; onGoToList: () =
   const state = usePokemonDetail(id);
 
   if (state.status === 'idle' || state.status === 'loading') {
-    return (
-      <View style={styles.centeredSafe} testID="pokemon-detail-loading">
-        <ActivityIndicator color={colors.pokedexRed} size="large" />
-      </View>
-    );
+    return <PokemonDetailSkeleton />;
   }
 
   if (state.status === 'error' || !state.data) {
