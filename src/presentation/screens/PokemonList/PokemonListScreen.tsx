@@ -1,4 +1,4 @@
-import { memo, useCallback } from 'react';
+import { memo, useCallback, useMemo } from 'react';
 import { ActivityIndicator, FlatList, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 
 import { Button, PokemonListItem, PokemonListItemSkeleton } from '../../components';
@@ -11,6 +11,8 @@ import {
   LIST_CONTENT_WIDTH_LANDSCAPE_RATIO,
   LIST_MAX_CONTENT_WIDTH_LANDSCAPE,
   MAX_CONTENT_WIDTH,
+  MAX_CONTENT_WIDTH_TABLET,
+  TABLET_BREAKPOINT,
 } from '@shared/constants';
 import type { RequestState } from '@shared/types';
 import { getSafeAreaInsets } from '@shared/utils';
@@ -18,8 +20,8 @@ import { getSafeAreaInsets } from '@shared/utils';
 const SKELETON_ITEM_COUNT = 7;
 const SKELETON_ITEM_KEYS = Array.from({ length: SKELETON_ITEM_COUNT }, (_, index) => index);
 const ROW_HEIGHT = 104;
+const ROW_HEIGHT_TABLET = 152;
 const SEPARATOR_HEIGHT = StyleSheet.hairlineWidth;
-const ROW_STRIDE = ROW_HEIGHT + SEPARATOR_HEIGHT;
 const INITIAL_NUM_TO_RENDER = 10;
 const MAX_TO_RENDER_PER_BATCH = 10;
 
@@ -27,20 +29,25 @@ function keyExtractor(item: PokemonListItemEntity) {
   return String(item.id);
 }
 
-function getItemLayout(_data: ArrayLike<PokemonListItemEntity> | null | undefined, index: number) {
-  return { length: ROW_HEIGHT, offset: ROW_STRIDE * index, index };
+function createGetItemLayout(rowHeight: number) {
+  const stride = rowHeight + SEPARATOR_HEIGHT;
+  return (_data: ArrayLike<PokemonListItemEntity> | null | undefined, index: number) => ({
+    length: rowHeight,
+    offset: stride * index,
+    index,
+  });
 }
 
 function ItemSeparator() {
   return <View style={styles.separator} />;
 }
 
-function ListSkeleton() {
+function ListSkeleton({ isTablet }: { isTablet: boolean }) {
   return (
     <View testID="pokemon-list-skeleton">
       {SKELETON_ITEM_KEYS.map((key) => (
         <View key={key}>
-          <PokemonListItemSkeleton />
+          <PokemonListItemSkeleton isTablet={isTablet} />
           <ItemSeparator />
         </View>
       ))}
@@ -65,19 +72,24 @@ function ListContent({
   onPress,
   onEndReached,
   isLoadingMore,
+  isTablet,
 }: {
   state: RequestState<PokemonListItemEntity[]>;
   onPress: (id: number) => void;
   onEndReached: () => void;
   isLoadingMore: boolean;
+  isTablet: boolean;
 }) {
   const renderItem = useCallback(
-    ({ item }: { item: PokemonListItemEntity }) => <PokemonListItem pokemon={item} onPress={onPress} />,
-    [onPress],
+    ({ item }: { item: PokemonListItemEntity }) => (
+      <PokemonListItem pokemon={item} onPress={onPress} isTablet={isTablet} />
+    ),
+    [onPress, isTablet],
   );
+  const getItemLayout = useMemo(() => createGetItemLayout(isTablet ? ROW_HEIGHT_TABLET : ROW_HEIGHT), [isTablet]);
 
   if (state.status === 'idle' || state.status === 'loading') {
-    return <ListSkeleton />;
+    return <ListSkeleton isTablet={isTablet} />;
   }
 
   if (state.status === 'error') {
@@ -113,6 +125,7 @@ function ListContent({
       onEndReached={onEndReached}
       onEndReachedThreshold={0.5}
       ListFooterComponent={<ListFooter isLoadingMore={isLoadingMore} />}
+      showsVerticalScrollIndicator={false}
     />
   );
 }
@@ -135,17 +148,26 @@ function LoadMoreError({ message, onRetry }: { message: string; onRetry: () => v
 function PokemonListScreenComponent() {
   const { state, loadMore, isLoadingMore, loadMoreError } = usePokemonList();
   const { goToDetail } = useNavigationActions();
-  const { width } = useWindowDimensions();
+  const { width, height } = useWindowDimensions();
   const isLandscape = useIsLandscape();
+  const isTablet = Math.min(width, height) >= TABLET_BREAKPOINT;
   const contentWidth = isLandscape
     ? Math.min(width * LIST_CONTENT_WIDTH_LANDSCAPE_RATIO, LIST_MAX_CONTENT_WIDTH_LANDSCAPE)
-    : Math.min(width, MAX_CONTENT_WIDTH);
+    : Math.min(width, isTablet ? MAX_CONTENT_WIDTH_TABLET : MAX_CONTENT_WIDTH);
 
   return (
     <View style={styles.safeArea}>
-      <View style={[styles.content, { width: contentWidth, alignSelf: isLandscape ? 'flex-start' : 'center' }]}>
-        <Text style={styles.title}>Pokédex</Text>
-        <ListContent state={state} onPress={goToDetail} onEndReached={loadMore} isLoadingMore={isLoadingMore} />
+      <View style={[styles.titleWrapper, { width: contentWidth, alignSelf: isLandscape ? 'flex-start' : 'center' }]}>
+        <Text style={[styles.title, isTablet && styles.titleTablet]}>Pokédex</Text>
+      </View>
+      <View style={styles.listWrapper}>
+        <ListContent
+          state={state}
+          onPress={goToDetail}
+          onEndReached={loadMore}
+          isLoadingMore={isLoadingMore}
+          isTablet={isTablet}
+        />
         {loadMoreError !== null && <LoadMoreError message={loadMoreError} onRetry={loadMore} />}
       </View>
     </View>
@@ -162,9 +184,11 @@ const styles = StyleSheet.create({
     backgroundColor: colors.nearBlack,
     paddingTop: insets.top,
   },
-  content: {
-    flex: 1,
+  titleWrapper: {
     alignSelf: 'center',
+  },
+  listWrapper: {
+    flex: 1,
   },
   title: {
     color: colors.offWhite,
@@ -174,6 +198,12 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingTop: 16,
     paddingBottom: 12,
+  },
+  titleTablet: {
+    fontSize: 42,
+    paddingHorizontal: 16,
+    paddingTop: 20,
+    paddingBottom: 16,
   },
   centered: {
     flex: 1,

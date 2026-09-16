@@ -8,20 +8,25 @@ import { capitalize, formatPokemonId } from '@shared/utils';
 interface PokemonListItemProps {
   pokemon: PokemonListItemEntity;
   onPress: (id: number) => void;
+  isTablet?: boolean;
 }
 
-function PokemonListItemComponent({ pokemon, onPress }: PokemonListItemProps) {
+function PokemonListItemComponent({ pokemon, onPress, isTablet = false }: PokemonListItemProps) {
   const displayName = capitalize(pokemon.name);
 
   return (
     <Pressable
-      style={({ pressed }) => [styles.container, pressed && styles.containerPressed]}
+      style={({ pressed }) => [
+        styles.container,
+        isTablet && styles.containerTablet,
+        pressed && styles.containerPressed,
+      ]}
       onPress={() => onPress(pokemon.id)}
       testID={`pokemon-item-${pokemon.id}`}
       accessibilityRole="button"
       accessibilityLabel={`${displayName}, número ${pokemon.id}, ver detalle`}
     >
-      <View style={styles.imageContainer}>
+      <View style={[styles.imageContainer, isTablet && styles.imageContainerTablet]}>
         <Image
           source={{ uri: pokemon.imageUrl }}
           style={styles.image}
@@ -30,10 +35,10 @@ function PokemonListItemComponent({ pokemon, onPress }: PokemonListItemProps) {
         />
       </View>
       <View style={styles.info}>
-        <Text style={styles.id}>{formatPokemonId(pokemon.id)}</Text>
-        <Text style={styles.name}>{pokemon.name}</Text>
+        <Text style={[styles.id, isTablet && styles.idTablet]}>{formatPokemonId(pokemon.id)}</Text>
+        <Text style={[styles.name, isTablet && styles.nameTablet]}>{pokemon.name}</Text>
       </View>
-      <Text style={styles.chevron}>›</Text>
+      <Text style={[styles.chevron, isTablet && styles.chevronTablet]}>›</Text>
     </Pressable>
   );
 }
@@ -50,6 +55,10 @@ const styles = StyleSheet.create({
   containerPressed: {
     backgroundColor: colors.rowPressed,
   },
+  containerTablet: {
+    paddingHorizontal: 16,
+    paddingVertical: 22,
+  },
   imageContainer: {
     width: 72,
     height: 72,
@@ -59,6 +68,11 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     overflow: 'hidden',
     marginRight: 16,
+  },
+  imageContainerTablet: {
+    width: 108,
+    height: 108,
+    marginRight: 20,
   },
   image: {
     width: '78%',
@@ -72,6 +86,9 @@ const styles = StyleSheet.create({
     fontFamily: MONOSPACE_FONT_FAMILY,
     fontSize: 12,
   },
+  idTablet: {
+    fontSize: 15,
+  },
   name: {
     color: colors.offWhite,
     fontFamily: HEADING_FONT_FAMILY,
@@ -79,9 +96,16 @@ const styles = StyleSheet.create({
     marginTop: 2,
     textTransform: 'capitalize',
   },
+  nameTablet: {
+    fontSize: 26,
+    marginTop: 4,
+  },
   chevron: {
     color: colors.offWhiteMuted,
     fontSize: 24,
     marginLeft: 8,
+  },
+  chevronTablet: {
+    fontSize: 30,
   },
 });
