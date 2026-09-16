@@ -15,22 +15,23 @@ import { usePokemonDetail } from '../../hooks';
 import { usePokedexNavigation } from '../../navigation';
 import { styles } from './PokemonDetailScreen.styles';
 
-function BackButton({ onPress }: { onPress: () => void }) {
+function FloatingBackButton({ onPress }: { onPress: () => void }) {
   return (
-    <Button
-      variant="primary"
-      label="Volver"
-      onPress={onPress}
-      testID="pokemon-detail-back-button"
-      accessibilityLabel="Volver al listado"
-    />
+    <View style={styles.floatingBackButton}>
+      <Button
+        variant="icon"
+        label="Volver"
+        onPress={onPress}
+        testID="pokemon-detail-back-button"
+        accessibilityLabel="Volver al listado"
+      />
+    </View>
   );
 }
 
 function StatBar({ stat, accentColor }: { stat: PokemonStat; accentColor: string }) {
   const widthPercent = (stat.baseValue / POKEMON_STAT_MAX_VALUE) * 100;
   const statLabel = POKEMON_STAT_LABELS[stat.name];
-
   return (
     <View
       style={styles.statRow}
@@ -41,20 +42,12 @@ function StatBar({ stat, accentColor }: { stat: PokemonStat; accentColor: string
       <View style={styles.statTrack}>
         <View style={[styles.statFill, { width: `${widthPercent}%`, backgroundColor: accentColor }]} />
       </View>
-      <Text style={styles.statValue}>{String(stat.baseValue).padStart(3, '0')}</Text>
+      <Text style={styles.statValue}>{String(stat.baseValue)}</Text>
     </View>
   );
 }
 
-function DetailFields({
-  pokemon,
-  accentColor,
-  onGoToList,
-}: {
-  pokemon: PokemonDetail;
-  accentColor: string;
-  onGoToList: () => void;
-}) {
+function DetailFields({ pokemon, accentColor }: { pokemon: PokemonDetail; accentColor: string }) {
   return (
     <>
       <Text style={styles.id}>#{String(pokemon.id).padStart(3, '0')}</Text>
@@ -100,19 +93,17 @@ function DetailFields({
           <StatBar key={stat.name} stat={stat} accentColor={accentColor} />
         ))}
       </View>
-
-      <BackButton onPress={onGoToList} />
     </>
   );
 }
 
-function PokemonDetailView({ pokemon, onGoToList }: { pokemon: PokemonDetail; onGoToList: () => void }) {
+function PokemonDetailView({ pokemon }: { pokemon: PokemonDetail }) {
   const accentColor = POKEMON_TYPE_COLORS[pokemon.types[0]] ?? colors.pokedexRed;
   const displayName = pokemon.name.charAt(0).toUpperCase() + pokemon.name.slice(1);
   const { width, height } = useWindowDimensions();
   // Landscape (tablet apaisada): hero y contenido van lado a lado en vez de
-  // apilados, para no forzar scroll para llegar al botón "Volver" cuando el
-  // alto disponible es chico y sobra ancho.
+  // apilados, para no forzar un scroll largo cuando el alto disponible es
+  // chico y sobra ancho.
   const isLandscape = width > height;
 
   if (isLandscape) {
@@ -135,7 +126,7 @@ function PokemonDetailView({ pokemon, onGoToList }: { pokemon: PokemonDetail; on
           <View style={styles.sheetLandscape}>
             <ScrollView style={styles.landscapeContentScroll} bounces={false}>
               <View style={[styles.content, { width: contentWidth }]}>
-                <DetailFields pokemon={pokemon} accentColor={accentColor} onGoToList={onGoToList} />
+                <DetailFields pokemon={pokemon} accentColor={accentColor} />
               </View>
             </ScrollView>
           </View>
@@ -160,7 +151,7 @@ function PokemonDetailView({ pokemon, onGoToList }: { pokemon: PokemonDetail; on
 
         <View style={styles.sheet}>
           <View style={[styles.content, { width: contentWidth }]}>
-            <DetailFields pokemon={pokemon} accentColor={accentColor} onGoToList={onGoToList} />
+            <DetailFields pokemon={pokemon} accentColor={accentColor} />
           </View>
         </View>
       </ScrollView>
@@ -168,7 +159,7 @@ function PokemonDetailView({ pokemon, onGoToList }: { pokemon: PokemonDetail; on
   );
 }
 
-function PokemonDetailContent({ id, onGoToList }: { id: number; onGoToList: () => void }) {
+function PokemonDetailContent({ id }: { id: number }) {
   const state = usePokemonDetail(id);
 
   if (state.status === 'idle' || state.status === 'loading') {
@@ -179,25 +170,26 @@ function PokemonDetailContent({ id, onGoToList }: { id: number; onGoToList: () =
     return (
       <View style={styles.centeredSafe} testID="pokemon-detail-error">
         <Text style={styles.message}>{state.error ?? 'Ocurrió un error inesperado.'}</Text>
-        <BackButton onPress={onGoToList} />
       </View>
     );
   }
 
-  return <PokemonDetailView pokemon={state.data} onGoToList={onGoToList} />;
+  return <PokemonDetailView pokemon={state.data} />;
 }
 
 export function PokemonDetailScreen() {
   const { selectedPokemonId, goToList } = usePokedexNavigation();
 
-  if (selectedPokemonId === null) {
-    return (
-      <View style={styles.centeredSafe} testID="pokemon-detail-error">
-        <Text style={styles.message}>No se seleccionó ningún pokémon.</Text>
-        <BackButton onPress={goToList} />
-      </View>
-    );
-  }
-
-  return <PokemonDetailContent id={selectedPokemonId} onGoToList={goToList} />;
+  return (
+    <View style={styles.screenContainer}>
+      <FloatingBackButton onPress={goToList} />
+      {selectedPokemonId === null ? (
+        <View style={styles.centeredSafe} testID="pokemon-detail-error">
+          <Text style={styles.message}>No se seleccionó ningún pokémon.</Text>
+        </View>
+      ) : (
+        <PokemonDetailContent id={selectedPokemonId} />
+      )}
+    </View>
+  );
 }

@@ -1,8 +1,8 @@
-import { Pressable, StyleSheet, Text } from 'react-native';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { colors, HEADING_FONT_FAMILY, RADIUS } from '@shared/constants';
 
-type ButtonVariant = 'primary' | 'text';
+type ButtonVariant = 'primary' | 'text' | 'icon';
 
 interface ButtonProps {
   label: string;
@@ -12,19 +12,28 @@ interface ButtonProps {
   accessibilityLabel?: string;
 }
 
+const TEXT_VARIANT_STYLES = {
+  primary: { button: 'primaryButton', text: 'primaryButtonText' },
+  text: { button: 'textButton', text: 'textButtonText' },
+} as const;
+
 export function Button({ label, onPress, variant, testID, accessibilityLabel }: ButtonProps) {
-  const isPrimary = variant === 'primary';
+  const isIcon = variant === 'icon';
 
   return (
     <Pressable
-      style={isPrimary ? styles.primaryButton : styles.textButton}
+      style={isIcon ? styles.iconButton : styles[TEXT_VARIANT_STYLES[variant].button]}
       onPress={onPress}
       testID={testID}
       accessibilityRole="button"
       accessibilityLabel={accessibilityLabel ?? label}
       hitSlop={8}
     >
-      <Text style={isPrimary ? styles.primaryButtonText : styles.textButtonText}>{label}</Text>
+      {isIcon ? (
+        <View style={styles.chevronLeft} />
+      ) : (
+        <Text style={styles[TEXT_VARIANT_STYLES[variant].text]}>{label}</Text>
+      )}
     </Pressable>
   );
 }
@@ -49,5 +58,22 @@ const styles = StyleSheet.create({
     fontFamily: HEADING_FONT_FAMILY,
     fontSize: 13,
     fontWeight: '600',
+  },
+  iconButton: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: colors.overlayDark,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  chevronLeft: {
+    width: 12,
+    height: 12,
+    borderRightWidth: 2.5,
+    borderBottomWidth: 2.5,
+    borderColor: colors.white,
+    transform: [{ rotate: '135deg' }],
+    marginLeft: 4.5,
   },
 });

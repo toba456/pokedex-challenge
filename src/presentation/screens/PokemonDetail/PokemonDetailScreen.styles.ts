@@ -12,6 +12,15 @@ import { getSafeAreaInsets } from '@shared/utils';
 const insets = getSafeAreaInsets();
 
 export const styles = StyleSheet.create({
+  screenContainer: {
+    flex: 1,
+  },
+  floatingBackButton: {
+    position: 'absolute',
+    top: insets.top + 12,
+    left: 16,
+    zIndex: 10,
+  },
   screen: {
     flex: 1,
     backgroundColor: colors.nearBlack,

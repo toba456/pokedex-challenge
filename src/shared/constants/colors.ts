@@ -10,4 +10,5 @@ export const colors = {
   imageBackdrop: '#1D1E26',
   rowPressed: '#1B1C24',
   skeletonBlock: '#23242C',
+  overlayDark: 'rgba(0, 0, 0, 0.35)',
 } as const;

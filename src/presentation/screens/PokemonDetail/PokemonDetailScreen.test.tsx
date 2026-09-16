@@ -60,6 +60,7 @@ describe('PokemonDetailScreen', () => {
     // El skeleton se oculta del árbol de accesibilidad (importantForAccessibility=
     // "no-hide-descendants"), así que hay que pedirle a la query que lo incluya.
     expect(getByTestId('pokemon-detail-skeleton', { includeHiddenElements: true })).toBeTruthy();
+    expect(getByTestId('pokemon-detail-back-button')).toBeTruthy();
   });
 
   it('muestra el skeleton de carga en estado loading', async () => {
@@ -77,6 +78,7 @@ describe('PokemonDetailScreen', () => {
 
     expect(getByTestId('pokemon-detail-error')).toBeTruthy();
     expect(getByText('algo falló')).toBeTruthy();
+    expect(getByTestId('pokemon-detail-back-button')).toBeTruthy();
   });
 
   it('muestra el estado de "no seleccionado" cuando no hay selectedPokemonId', async () => {
@@ -108,10 +110,12 @@ describe('PokemonDetailScreen', () => {
     expect(getByText('112')).toBeTruthy();
   });
 
-  it('vuelve al listado al tocar el botón Volver', async () => {
+  it('vuelve al listado al tocar el botón flotante de volver', async () => {
     mockedUsePokemonDetail.mockReturnValue({ status: 'success', data: buildPokemonDetail() });
 
-    const { getByTestId } = await render(<PokemonDetailScreen />);
+    const { getByTestId, getByLabelText } = await render(<PokemonDetailScreen />);
+
+    expect(getByLabelText('Volver al listado')).toBeTruthy();
 
     await fireEvent.press(getByTestId('pokemon-detail-back-button'));
 
