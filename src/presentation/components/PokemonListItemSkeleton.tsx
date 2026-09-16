@@ -7,7 +7,12 @@ export function PokemonListItemSkeleton() {
   const opacity = usePulseAnimation();
 
   return (
-    <Animated.View style={[styles.container, { opacity }]} testID="pokemon-list-item-skeleton">
+    <Animated.View
+      style={[styles.container, { opacity }]}
+      testID="pokemon-list-item-skeleton"
+      accessibilityElementsHidden
+      importantForAccessibility="no-hide-descendants"
+    >
       <View style={styles.imageContainer} />
       <View style={styles.info}>
         <View style={styles.idBlock} />

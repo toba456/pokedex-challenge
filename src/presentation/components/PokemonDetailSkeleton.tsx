@@ -10,7 +10,12 @@ export function PokemonDetailSkeleton() {
   const opacity = usePulseAnimation();
 
   return (
-    <Animated.View style={[styles.screen, { opacity }]} testID="pokemon-detail-skeleton">
+    <Animated.View
+      style={[styles.screen, { opacity }]}
+      testID="pokemon-detail-skeleton"
+      accessibilityElementsHidden
+      importantForAccessibility="no-hide-descendants"
+    >
       <View style={styles.hero} />
 
       <View style={styles.sheet}>

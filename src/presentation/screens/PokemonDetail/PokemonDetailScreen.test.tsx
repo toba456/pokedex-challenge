@@ -49,7 +49,9 @@ describe('PokemonDetailScreen', () => {
 
     const { getByTestId } = await render(<PokemonDetailScreen />);
 
-    expect(getByTestId('pokemon-detail-skeleton')).toBeTruthy();
+    // El skeleton se oculta del árbol de accesibilidad (importantForAccessibility=
+    // "no-hide-descendants"), así que hay que pedirle a la query que lo incluya.
+    expect(getByTestId('pokemon-detail-skeleton', { includeHiddenElements: true })).toBeTruthy();
   });
 
   it('muestra el skeleton de carga en estado loading', async () => {
@@ -57,7 +59,7 @@ describe('PokemonDetailScreen', () => {
 
     const { getByTestId } = await render(<PokemonDetailScreen />);
 
-    expect(getByTestId('pokemon-detail-skeleton')).toBeTruthy();
+    expect(getByTestId('pokemon-detail-skeleton', { includeHiddenElements: true })).toBeTruthy();
   });
 
   it('muestra el mensaje de error en estado error', async () => {

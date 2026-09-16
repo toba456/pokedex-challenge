@@ -19,7 +19,14 @@ import { usePokedexNavigation } from '../../navigation';
 
 function BackButton({ onPress }: { onPress: () => void }) {
   return (
-    <Pressable style={styles.button} onPress={onPress} testID="pokemon-detail-back-button">
+    <Pressable
+      style={styles.button}
+      onPress={onPress}
+      testID="pokemon-detail-back-button"
+      accessibilityRole="button"
+      accessibilityLabel="Volver al listado"
+      hitSlop={8}
+    >
       <Text style={styles.buttonText}>Volver</Text>
     </Pressable>
   );
@@ -27,10 +34,15 @@ function BackButton({ onPress }: { onPress: () => void }) {
 
 function StatBar({ stat, accentColor }: { stat: PokemonStat; accentColor: string }) {
   const widthPercent = (stat.baseValue / POKEMON_STAT_MAX_VALUE) * 100;
+  const statLabel = POKEMON_STAT_LABELS[stat.name];
 
   return (
-    <View style={styles.statRow}>
-      <Text style={styles.statLabel}>{POKEMON_STAT_LABELS[stat.name]}</Text>
+    <View
+      style={styles.statRow}
+      accessible
+      accessibilityLabel={`${statLabel}: ${stat.baseValue} sobre ${POKEMON_STAT_MAX_VALUE}`}
+    >
+      <Text style={styles.statLabel}>{statLabel}</Text>
       <View style={styles.statTrack}>
         <View style={[styles.statFill, { width: `${widthPercent}%`, backgroundColor: accentColor }]} />
       </View>
@@ -41,12 +53,18 @@ function StatBar({ stat, accentColor }: { stat: PokemonStat; accentColor: string
 
 function PokemonDetailView({ pokemon, onGoToList }: { pokemon: PokemonDetail; onGoToList: () => void }) {
   const accentColor = POKEMON_TYPE_COLORS[pokemon.types[0]] ?? colors.pokedexRed;
+  const displayName = pokemon.name.charAt(0).toUpperCase() + pokemon.name.slice(1);
 
   return (
     <View style={styles.screen} testID="pokemon-detail-content">
       <ScrollView bounces={false}>
         <View style={[styles.hero, { backgroundColor: accentColor }]}>
-          <Image source={{ uri: pokemon.imageUrl }} style={styles.heroImage} resizeMode="contain" />
+          <Image
+            source={{ uri: pokemon.imageUrl }}
+            style={styles.heroImage}
+            resizeMode="contain"
+            accessibilityLabel={displayName}
+          />
         </View>
 
         <View style={styles.sheet}>
@@ -61,6 +79,8 @@ function PokemonDetailView({ pokemon, onGoToList }: { pokemon: PokemonDetail; on
                   <View
                     key={type}
                     style={[styles.chip, { borderColor: typeColor, backgroundColor: `${typeColor}26` }]}
+                    accessible
+                    accessibilityLabel={POKEMON_TYPE_LABELS[type]}
                   >
                     <Text style={[styles.chipText, { color: typeColor }]}>{POKEMON_TYPE_LABELS[type]}</Text>
                   </View>

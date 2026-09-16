@@ -125,7 +125,13 @@ function LoadMoreError({ message, onRetry }: { message: string; onRetry: () => v
   return (
     <View style={styles.loadMoreErrorRow} testID="pokemon-list-load-more-error">
       <Text style={styles.loadMoreErrorText}>{message}</Text>
-      <Pressable onPress={onRetry} testID="pokemon-list-load-more-retry" hitSlop={8}>
+      <Pressable
+        onPress={onRetry}
+        testID="pokemon-list-load-more-retry"
+        hitSlop={8}
+        accessibilityRole="button"
+        accessibilityLabel="Reintentar carga de más pokémon"
+      >
         <Text style={styles.loadMoreErrorRetry}>Reintentar</Text>
       </Pressable>
     </View>

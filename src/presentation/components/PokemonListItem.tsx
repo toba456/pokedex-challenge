@@ -10,14 +10,23 @@ interface PokemonListItemProps {
 }
 
 function PokemonListItemComponent({ pokemon, onPress }: PokemonListItemProps) {
+  const displayName = pokemon.name.charAt(0).toUpperCase() + pokemon.name.slice(1);
+
   return (
     <Pressable
       style={({ pressed }) => [styles.container, pressed && styles.containerPressed]}
       onPress={() => onPress(pokemon.id)}
       testID={`pokemon-item-${pokemon.id}`}
+      accessibilityRole="button"
+      accessibilityLabel={`${displayName}, número ${pokemon.id}, ver detalle`}
     >
       <View style={styles.imageContainer}>
-        <Image source={{ uri: pokemon.imageUrl }} style={styles.image} resizeMode="contain" />
+        <Image
+          source={{ uri: pokemon.imageUrl }}
+          style={styles.image}
+          resizeMode="contain"
+          accessibilityLabel={displayName}
+        />
       </View>
       <View style={styles.info}>
         <Text style={styles.id}>#{String(pokemon.id).padStart(3, '0')}</Text>
