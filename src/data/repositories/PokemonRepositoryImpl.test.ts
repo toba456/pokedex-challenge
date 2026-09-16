@@ -119,6 +119,22 @@ describe('PokemonRepositoryImpl', () => {
     expect(result).toEqual({ items: cachedItems, hasMore: false });
   });
 
+  it('en offset > 0, si remote falla, propaga el error sin usar la cache como fallback (evita duplicados en loadMore)', async () => {
+    const apiError = new PokemonApiError('network', 'No se pudo conectar con la PokéAPI');
+    const remoteDataSource = buildRemoteDataSourceMock();
+    remoteDataSource.getPokemonList.mockRejectedValue(apiError);
+    const cachedItems: PokemonListItem[] = [
+      { id: 1, name: 'bulbasaur', imageUrl: 'https://example.com/1.png' },
+      { id: 2, name: 'ivysaur', imageUrl: 'https://example.com/2.png' },
+    ];
+    const localDataSource = buildLocalDataSourceMock();
+    localDataSource.getList.mockResolvedValue(cachedItems);
+    const repository = new PokemonRepositoryImpl(remoteDataSource, localDataSource);
+
+    await expect(repository.getPokemonList(20, 20)).rejects.toBe(apiError);
+    expect(localDataSource.getList).not.toHaveBeenCalled();
+  });
+
   it('si remote falla y no hay cache, propaga el error original', async () => {
     const apiError = new PokemonApiError('network', 'No se pudo conectar con la PokéAPI');
     const remoteDataSource = buildRemoteDataSourceMock();

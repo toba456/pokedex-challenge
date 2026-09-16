@@ -24,10 +24,16 @@ export class PokemonRepositoryImpl implements IPokemonRepository {
       void this.localDataSource.saveList(accumulatedItems).catch(() => undefined);
       return page;
     } catch (error) {
-      const cachedItems = await this.localDataSource.getList();
+      // El fallback a cache solo aplica en offset 0: la cache guarda la lista
+      // COMPLETA acumulada, no una página nueva. En offset > 0 devolverla
+      // duplicaría los items ya renderizados; se propaga el error y lo
+      // maneja usePokemonList (loadMoreError) sin tocar la lista visible.
+      if (offset === 0) {
+        const cachedItems = await this.localDataSource.getList();
 
-      if (cachedItems !== null) {
-        return { items: cachedItems, hasMore: false };
+        if (cachedItems !== null) {
+          return { items: cachedItems, hasMore: false };
+        }
       }
 
       throw error;
