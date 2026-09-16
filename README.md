@@ -176,6 +176,17 @@ detalle: bloques con la misma silueta y dimensiones que el contenido real
 de opacidad (`Animated` del core de RN, sin librerías) aplicado al bloque
 completo, no elemento por elemento.
 
+### Transición animada al detalle
+
+Único momento de animación deliberado de la app (evitando el fade-in genérico
+por ítem en el listado): al entrar al detalle, la pantalla se desliza desde la
+derecha con `translateX` + `opacity` (`Animated.timing`, ~220ms); al volver,
+corre la animación inversa y recién cuando termina se desmonta el detalle y
+se dispara la navegación real, revelando el listado (que ya estaba montado
+debajo) a medida que se desliza afuera. Un guard por `ref` evita que un doble
+tap sobre "Volver" dispare la navegación dos veces o deje la animación a
+medio terminar.
+
 ### Optimización de rendimiento
 
 `PokemonListItem` memoizado (`React.memo`), con las funciones de navegación
