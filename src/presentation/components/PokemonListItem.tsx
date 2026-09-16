@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { PokemonListItem as PokemonListItemEntity } from '../../domain/entities';
@@ -8,7 +9,7 @@ interface PokemonListItemProps {
   onPress: (id: number) => void;
 }
 
-export function PokemonListItem({ pokemon, onPress }: PokemonListItemProps) {
+function PokemonListItemComponent({ pokemon, onPress }: PokemonListItemProps) {
   return (
     <Pressable
       style={({ pressed }) => [styles.container, pressed && styles.containerPressed]}
@@ -26,6 +27,8 @@ export function PokemonListItem({ pokemon, onPress }: PokemonListItemProps) {
     </Pressable>
   );
 }
+
+export const PokemonListItem = memo(PokemonListItemComponent);
 
 const styles = StyleSheet.create({
   container: {

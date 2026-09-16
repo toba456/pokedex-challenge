@@ -1,3 +1,4 @@
+import { useCallback } from 'react';
 import { ActivityIndicator, FlatList, Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { PokemonListItem, PokemonListItemSkeleton } from '../../components';
@@ -10,6 +11,29 @@ import { getSafeAreaInsets } from '../../../shared/utils';
 
 const SKELETON_ITEM_COUNT = 7;
 const SKELETON_ITEM_KEYS = Array.from({ length: SKELETON_ITEM_COUNT }, (_, index) => index);
+
+// Layout fijo de cada fila (igual en PokemonListItem y su skeleton): 72 de
+// imagen + 16 de padding vertical arriba y abajo = 104. Se suma el separador
+// (hairline) para que el offset acumulado de getItemLayout coincida con lo
+// que FlatList realmente pinta entre filas.
+const ROW_HEIGHT = 104;
+const SEPARATOR_HEIGHT = StyleSheet.hairlineWidth;
+const ROW_STRIDE = ROW_HEIGHT + SEPARATOR_HEIGHT;
+
+// En una pantalla típica entran ~7 filas visibles (mismo número que
+// SKELETON_ITEM_COUNT, calculado con la misma altura de fila). Se pide un
+// poco más que eso para no dejar hueco en blanco al soltar el dedo tras un
+// scroll rápido, sin sobredimensionar el trabajo por lote.
+const INITIAL_NUM_TO_RENDER = 10;
+const MAX_TO_RENDER_PER_BATCH = 10;
+
+function keyExtractor(item: PokemonListItemEntity) {
+  return String(item.id);
+}
+
+function getItemLayout(_data: ArrayLike<PokemonListItemEntity> | null | undefined, index: number) {
+  return { length: ROW_HEIGHT, offset: ROW_STRIDE * index, index };
+}
 
 function ItemSeparator() {
   return <View style={styles.separator} />;
@@ -51,6 +75,11 @@ function ListContent({
   onEndReached: () => void;
   isLoadingMore: boolean;
 }) {
+  const renderItem = useCallback(
+    ({ item }: { item: PokemonListItemEntity }) => <PokemonListItem pokemon={item} onPress={onPress} />,
+    [onPress],
+  );
+
   if (state.status === 'idle' || state.status === 'loading') {
     return <ListSkeleton />;
   }
@@ -78,8 +107,12 @@ function ListContent({
       testID="pokemon-list"
       style={styles.list}
       data={pokemonList}
-      keyExtractor={(item) => String(item.id)}
-      renderItem={({ item }) => <PokemonListItem pokemon={item} onPress={onPress} />}
+      keyExtractor={keyExtractor}
+      renderItem={renderItem}
+      getItemLayout={getItemLayout}
+      removeClippedSubviews
+      initialNumToRender={INITIAL_NUM_TO_RENDER}
+      maxToRenderPerBatch={MAX_TO_RENDER_PER_BATCH}
       ItemSeparatorComponent={ItemSeparator}
       onEndReached={onEndReached}
       onEndReachedThreshold={0.5}
