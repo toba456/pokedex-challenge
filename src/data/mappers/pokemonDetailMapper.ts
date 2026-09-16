@@ -8,10 +8,6 @@ const HECTOGRAMS_PER_KILOGRAM = 10;
 
 function mapStatSlot(statSlot: PokemonStatSlotDTO): PokemonStat {
   return {
-    // La PokéAPI ya nombra los stats en kebab-case (ej. "special-attack"), que
-    // es exactamente el formato de PokemonStatName: se castea tal cual en vez
-    // de armar una tabla de traducción acá. Traducir a texto legible ("At.
-    // especial") es responsabilidad de la capa de presentación.
     name: statSlot.stat.name as PokemonStatName,
     baseValue: statSlot.base_stat,
   };

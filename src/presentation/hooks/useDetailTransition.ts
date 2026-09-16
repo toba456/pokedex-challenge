@@ -3,11 +3,6 @@ import { Animated, useWindowDimensions } from 'react-native';
 
 const TRANSITION_DURATION_MS = 220;
 
-// Progreso 0 (fuera de pantalla, a la derecha) -> 1 (en pantalla). Un solo
-// Animated.Value maneja translateX y opacity a la vez: es la única
-// animación deliberada de la app (transición de navegación), simulando la
-// entrada/salida de un stack nativo sin depender de ninguna librería de
-// navegación.
 export function useDetailTransition(onClosed: () => void) {
   const { width } = useWindowDimensions();
   const [progress] = useState(() => new Animated.Value(0));

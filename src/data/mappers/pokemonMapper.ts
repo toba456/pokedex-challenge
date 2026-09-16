@@ -15,8 +15,6 @@ export function mapPokemonListItemDTOToEntity(dto: PokemonListItemDTO): PokemonL
   return {
     id,
     name: dto.name,
-    // Artwork oficial en vez del sprite pixelado default: mejor calidad para el
-    // hero del detalle y sirve también para el listado.
     imageUrl: `${POKEAPI_OFFICIAL_ARTWORK_BASE_URL}/${id}.png`,
   };
 }

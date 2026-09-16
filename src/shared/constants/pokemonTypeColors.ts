@@ -1,9 +1,5 @@
 import { PokemonType } from '../types';
 
-// Colores oficiales por tipo: el listado no expone
-// el tipo de cada Pokémon sin un fetch adicional, así que este sistema de
-// color es exclusivo de la pantalla de detalle, donde el dato sí está
-// disponible sin requests extra.
 export const POKEMON_TYPE_COLORS: Record<PokemonType, string> = {
   normal: '#A8A77A',
   fire: '#EE8130',

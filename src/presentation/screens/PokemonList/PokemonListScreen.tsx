@@ -17,19 +17,9 @@ import { getSafeAreaInsets } from '@shared/utils';
 
 const SKELETON_ITEM_COUNT = 7;
 const SKELETON_ITEM_KEYS = Array.from({ length: SKELETON_ITEM_COUNT }, (_, index) => index);
-
-// Layout fijo de cada fila (igual en PokemonListItem y su skeleton): 72 de
-// imagen + 16 de padding vertical arriba y abajo = 104. Se suma el separador
-// (hairline) para que el offset acumulado de getItemLayout coincida con lo
-// que FlatList realmente pinta entre filas.
 const ROW_HEIGHT = 104;
 const SEPARATOR_HEIGHT = StyleSheet.hairlineWidth;
 const ROW_STRIDE = ROW_HEIGHT + SEPARATOR_HEIGHT;
-
-// En una pantalla típica entran ~7 filas visibles (mismo número que
-// SKELETON_ITEM_COUNT, calculado con la misma altura de fila). Se pide un
-// poco más que eso para no dejar hueco en blanco al soltar el dedo tras un
-// scroll rápido, sin sobredimensionar el trabajo por lote.
 const INITIAL_NUM_TO_RENDER = 10;
 const MAX_TO_RENDER_PER_BATCH = 10;
 
@@ -146,10 +136,6 @@ function PokemonListScreenComponent() {
   const { state, loadMore, isLoadingMore, loadMoreError } = usePokemonList();
   const { goToDetail } = useNavigationActions();
   const { width, height } = useWindowDimensions();
-  // En landscape el listado no protege una columna de lectura larga (son
-  // filas cortas), así que en vez de centrarse con MAX_CONTENT_WIDTH se
-  // alinea a la izquierda y usa más ancho, evitando el margen vacío de ambos
-  // lados que sí tiene sentido en portrait.
   const isLandscape = width > height;
   const contentWidth = isLandscape
     ? Math.min(width * LIST_CONTENT_WIDTH_LANDSCAPE_RATIO, LIST_MAX_CONTENT_WIDTH_LANDSCAPE)
