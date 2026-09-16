@@ -90,12 +90,19 @@ pide, es una decisión de criterio, no una limitación no evaluada.
 ## Estrategia de persistencia
 
 `PokemonRepositoryImpl` implementa una estrategia **network-first con fallback a
-cache**: siempre intenta primero traer los datos de la PokéAPI y, si responde ok,
-guarda esa lista mapeada en `AsyncStorage` (guardado fire-and-forget, no bloquea la
-respuesta). Si el request remoto falla (sin red, error del servidor, etc.), el
-repositorio recurre a la última lista cacheada localmente; si tampoco hay nada
-cacheado, propaga el error original del datasource remoto en vez de uno genérico,
-para no perder la causa real de la falla.
+cache** tanto para el listado como para el detalle: siempre intenta primero traer
+los datos de la PokéAPI y, si responde ok, guarda el resultado mapeado en
+`AsyncStorage` (guardado fire-and-forget, no bloquea la respuesta). Si el request
+remoto falla (sin red, error del servidor, etc.), el repositorio recurre a la
+cache local disponible; si tampoco hay nada cacheado, propaga el error original
+del datasource remoto en vez de uno genérico, para no perder la causa real de la
+falla.
+
+El listado se cachea como una única lista acumulada bajo `POKEMON_LIST_STORAGE_KEY`
+(ver detalle de la estrategia por offset en la sección de paginación). El detalle
+se cachea por Pokémon individual, bajo una key propia por id
+(`getPokemonDetailStorageKey(id)`), para que el fallback de un id nunca devuelva
+el detalle cacheado de otro.
 
 ## Estados de UI
 
