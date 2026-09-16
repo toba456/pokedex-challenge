@@ -62,6 +62,16 @@ Todo lo demás (navegación, estado global, networking, persistencia de la
 core y JavaScript estándar.
 
 
+## Estrategia de persistencia
+
+`PokemonRepositoryImpl` implementa una estrategia **network-first con fallback a
+cache**: siempre intenta primero traer los datos de la PokéAPI y, si responde ok,
+guarda esa lista mapeada en `AsyncStorage` (guardado fire-and-forget, no bloquea la
+respuesta). Si el request remoto falla (sin red, error del servidor, etc.), el
+repositorio recurre a la última lista cacheada localmente; si tampoco hay nada
+cacheado, propaga el error original del datasource remoto en vez de uno genérico,
+para no perder la causa real de la falla.
+
 ## Estados de UI
 
 La app maneja explícitamente los estados de carga, error y vacío tanto en el
