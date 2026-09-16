@@ -1,4 +1,4 @@
-import { ActivityIndicator, FlatList, Platform, SafeAreaView, StatusBar, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, FlatList, StyleSheet, Text, View } from 'react-native';
 
 import { PokemonListItem } from '../../components';
 import { usePokemonList } from '../../hooks';
@@ -6,6 +6,7 @@ import { usePokedexNavigation } from '../../navigation';
 import { PokemonListItem as PokemonListItemEntity } from '../../../domain/entities';
 import { colors, HEADING_FONT_FAMILY } from '../../../shared/constants';
 import type { RequestState } from '../../../shared/types';
+import { getSafeAreaInsets } from '../../../shared/utils';
 
 function ItemSeparator() {
   return <View style={styles.separator} />;
@@ -61,18 +62,20 @@ export function PokemonListScreen() {
   const { goToDetail } = usePokedexNavigation();
 
   return (
-    <SafeAreaView style={styles.safeArea}>
+    <View style={styles.safeArea}>
       <Text style={styles.title}>Pokédex</Text>
       <ListContent state={state} onPress={goToDetail} />
-    </SafeAreaView>
+    </View>
   );
 }
+
+const insets = getSafeAreaInsets();
 
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
     backgroundColor: colors.nearBlack,
-    paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0,
+    paddingTop: insets.top,
   },
   title: {
     color: colors.offWhite,

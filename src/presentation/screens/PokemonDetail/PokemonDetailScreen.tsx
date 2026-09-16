@@ -1,15 +1,4 @@
-import {
-  ActivityIndicator,
-  Image,
-  Platform,
-  Pressable,
-  SafeAreaView,
-  ScrollView,
-  StatusBar,
-  StyleSheet,
-  Text,
-  View,
-} from 'react-native';
+import { ActivityIndicator, Image, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import { PokemonDetail, PokemonStat } from '../../../domain/entities';
 import {
@@ -23,6 +12,7 @@ import {
   RADIUS,
   SHEET_RADIUS,
 } from '../../../shared/constants';
+import { getSafeAreaInsets } from '../../../shared/utils';
 import { usePokemonDetail } from '../../hooks';
 import { usePokedexNavigation } from '../../navigation';
 
@@ -58,7 +48,7 @@ function PokemonDetailView({ pokemon, onGoToList }: { pokemon: PokemonDetail; on
           <Image source={{ uri: pokemon.imageUrl }} style={styles.heroImage} resizeMode="contain" />
         </View>
 
-        <SafeAreaView style={styles.sheet}>
+        <View style={styles.sheet}>
           <View style={styles.content}>
             <Text style={styles.id}>#{String(pokemon.id).padStart(3, '0')}</Text>
             <Text style={styles.name}>{pokemon.name}</Text>
@@ -104,7 +94,7 @@ function PokemonDetailView({ pokemon, onGoToList }: { pokemon: PokemonDetail; on
 
             <BackButton onPress={onGoToList} />
           </View>
-        </SafeAreaView>
+        </View>
       </ScrollView>
     </View>
   );
@@ -115,18 +105,18 @@ function PokemonDetailContent({ id, onGoToList }: { id: number; onGoToList: () =
 
   if (state.status === 'idle' || state.status === 'loading') {
     return (
-      <SafeAreaView style={styles.centeredSafe} testID="pokemon-detail-loading">
+      <View style={styles.centeredSafe} testID="pokemon-detail-loading">
         <ActivityIndicator color={colors.pokedexRed} size="large" />
-      </SafeAreaView>
+      </View>
     );
   }
 
   if (state.status === 'error' || !state.data) {
     return (
-      <SafeAreaView style={styles.centeredSafe} testID="pokemon-detail-error">
+      <View style={styles.centeredSafe} testID="pokemon-detail-error">
         <Text style={styles.message}>{state.error ?? 'Ocurrió un error inesperado.'}</Text>
         <BackButton onPress={onGoToList} />
-      </SafeAreaView>
+      </View>
     );
   }
 
@@ -138,15 +128,17 @@ export function PokemonDetailScreen() {
 
   if (selectedPokemonId === null) {
     return (
-      <SafeAreaView style={styles.centeredSafe} testID="pokemon-detail-error">
+      <View style={styles.centeredSafe} testID="pokemon-detail-error">
         <Text style={styles.message}>No se seleccionó ningún pokémon.</Text>
         <BackButton onPress={goToList} />
-      </SafeAreaView>
+      </View>
     );
   }
 
   return <PokemonDetailContent id={selectedPokemonId} onGoToList={goToList} />;
 }
+
+const insets = getSafeAreaInsets();
 
 const styles = StyleSheet.create({
   screen: {
@@ -158,7 +150,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: colors.nearBlack,
-    paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0,
+    paddingTop: insets.top,
+    paddingBottom: insets.bottom,
     padding: 24,
     gap: 24,
   },
@@ -187,6 +180,7 @@ const styles = StyleSheet.create({
   content: {
     padding: 20,
     paddingTop: 28,
+    paddingBottom: 20 + insets.bottom,
     gap: 4,
   },
   id: {
