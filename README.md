@@ -78,19 +78,6 @@ discutible por venir con el core de Expo, pero arrastra dependencias adicionales
  
 Trade-off asumido: no hay gestos nativos de swipe-back ni animaciones de transición
 del sistema — cubre el flujo requerido sin agregar dependencias de producción.
- 
-El enunciado pide no usar librerías externas de terceros más allá de lo que
-provee React Native/Expo. Se tomaron dos excepciones puntuales, documentadas acá:
- 
-| Librería | Tipo | Justificación |
-|---|---|---|
-| `@react-native-async-storage/async-storage` | Producción | Es el estándar de facto para persistencia local en React Native (formó parte del core hasta RN 0.59, y sigue siendo mantenida por la comunidad RN oficial). No existe alternativa nativa equivalente sin escribir un módulo nativo propio, lo cual excede el alcance de este challenge. |
-| Jest + `@testing-library/react-native` | Desarrollo (no llega a producción) | Se interpreta que la restricción del enunciado aplica a librerías de lógica de negocio en runtime (navegación, estado, networking, UI kits), no a herramientas de desarrollo/testing, que son estándar de la industria y no forman parte del bundle de la app. |
-| ESLint + Prettier | Desarrollo | Mismo criterio que el anterior: tooling, no código de producción. |
- 
-Todo lo demás (navegación, estado global, networking, persistencia de la
-*lógica* de acceso) está implementado únicamente con APIs de React Native, Expo
-core y JavaScript estándar.
 
 ## Estrategia de persistencia
 
@@ -108,5 +95,92 @@ La app maneja explícitamente los estados de carga, error y vacío tanto en el
 listado como en el detalle, mediante un tipo `RequestState<T>` compartido
 (ver `shared/types`).
 
+## Funcionalidades bonus implementadas
+
+### Paginación / carga incremental
+
+El listado no trae los 20 Pokémon fijos y termina ahí: `usePokemonList` expone
+`loadMore()`, que pide la siguiente página (offset +20) y la agrega al final de
+la lista existente, activado por scroll (`onEndReached` del `FlatList`). La
+cache local sigue la misma estrategia network-first: en la carga inicial
+(offset 0) reemplaza la cache completa; en páginas siguientes, la mergea con lo
+ya cacheado, evitando que una sesión de paginación vieja quede mezclada con un
+listado nuevo tras reabrir la app.
+
+### Manejo centralizado de errores
+
+Un único punto (`getUserFriendlyErrorMessage`) traduce los errores tipados de
+la capa de red (`PokemonApiError`: `network` / `http` / `parse`) a mensajes en
+español sin jerga técnica, consumido tanto por la carga inicial como por los
+fallos de `loadMore` (que se muestran inline, sin bloquear la lista ya
+cargada, con opción de reintentar).
+
+### Skeleton loaders
+
+Reemplazan el spinner genérico durante la carga inicial del listado y del
+detalle: bloques con la misma silueta y dimensiones que el contenido real
+(evita el "salto" visual al terminar de cargar), con un único efecto de pulso
+de opacidad (`Animated` del core de RN, sin librerías) aplicado al bloque
+completo, no elemento por elemento.
+
+### Optimización de rendimiento
+
+`PokemonListItem` memoizado (`React.memo`), con las funciones de navegación
+(`goToDetail`/`goToList`) estabilizadas con `useCallback` para que la
+memoización tenga efecto real. El `FlatList` usa `getItemLayout` (evita medir
+cada fila dinámicamente, ya que la altura es fija y conocida) y
+`removeClippedSubviews`, con umbrales de renderizado por lote ajustados al
+tamaño real de cada fila.
+
+### Testing (unitario + integración)
+
+Cobertura unitaria en las tres capas (casos de uso, mappers, repositorios,
+reducers, hooks y pantallas), más un test de integración de punta a punta
+(`App` completo sin mockear hooks ni navegación, solo la red) que verifica el
+flujo real: listado → tap → detalle → volver.
+
+### Accesibilidad
+
+Roles y labels descriptivos para lector de pantalla en toda la interacción:
+filas del listado anunciadas como una sola unidad ("Bulbasaur, número 1, ver
+detalle") en vez de fragmentos sueltos, imágenes con nombre del Pokémon,
+chips de tipo y barras de stats con su valor leído en voz (no solo color o
+longitud visual como diferenciador), y los skeletons de carga ocultos
+explícitamente del lector de pantalla para no anunciar contenido decorativo.
+Contraste de texto verificado con cálculo real contra el fondo (offWhite
+15:1, offWhiteMuted 5.31:1, ambos por encima del mínimo WCAG de 4.5:1). Los
+textos de los botones "Volver" y "Reintentar" no calificaban para el umbral
+reducido de "texto grande" (16px/13px, ninguno llega a 18px normal o 14px
+bold), así que se ajustaron a blanco puro para cumplir 4.5:1 (5.10:1 y
+18.05:1 respectivamente) sin modificar `pokedexRed`, que se mantiene intacto
+como color de marca en el resto de la app.
+
 ## Estructura de carpetas
+
+```
+src/
+├── domain/
+│   ├── entities/          # Pokemon, PokemonDetail, PokemonListItem, PokemonListPage, PokemonStat: modelos puros de dominio
+│   ├── repositories/      # IPokemonRepository: contrato que implementa la capa data
+│   └── usecases/          # GetPokemonListUseCase, GetPokemonDetailUseCase: reglas de negocio, reciben el repositorio por interfaz
+├── data/
+│   ├── datasources/
+│   │   ├── local/         # PokemonLocalDataSource: persistencia en AsyncStorage
+│   │   └── remote/        # PokemonRemoteDataSource, DTOs y PokemonApiError: fetch a PokéAPI y sus tipos crudos
+│   ├── mappers/           # pokemonMapper, pokemonDetailMapper: traducen DTO de la API a entidades de domain
+│   └── repositories/      # PokemonRepositoryImpl: implementa IPokemonRepository con estrategia network-first + cache
+├── presentation/
+│   ├── components/        # PokemonListItem y skeletons de listado/detalle: UI pura, memoizada donde aplica
+│   ├── context/           # reservado para contexts de estado global adicionales (sin uso actual)
+│   ├── hooks/             # usePokemonList, usePokemonDetail, usePulseAnimation: conectan pantallas con los casos de uso
+│   ├── navigation/        # navegador manual (reducer + context propio con estado 'list' | 'detail', sin librerías)
+│   └── screens/
+│       ├── PokemonList/   # pantalla de listado
+│       └── PokemonDetail/ # pantalla de detalle
+├── shared/
+│   ├── constants/         # colores, tipografía, radios, URL de la API, claves de storage y colores/labels por tipo de Pokémon
+│   ├── types/              # RequestState<T>, PokemonType, PokemonStatName: tipado compartido entre capas
+│   └── utils/               # getUserFriendlyErrorMessage, safeAreaInsets: helpers genéricos
+└── di/                       # container.ts: inyección de dependencias manual, arma repositorios y casos de uso
+```
 
