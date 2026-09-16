@@ -22,7 +22,7 @@ describe('PokemonRepositoryImpl', () => {
   it('mapea el DTO del datasource a entidades de domain', async () => {
     const responseDTO: PokemonListResponseDTO = {
       count: 1302,
-      next: null,
+      next: 'https://pokeapi.co/api/v2/pokemon?limit=20&offset=20',
       previous: null,
       results: [
         { name: 'bulbasaur', url: 'https://pokeapi.co/api/v2/pokemon/1/' },
@@ -37,23 +37,26 @@ describe('PokemonRepositoryImpl', () => {
     const result = await repository.getPokemonList(20, 0);
 
     expect(remoteDataSource.getPokemonList).toHaveBeenCalledWith(20, 0);
-    expect(result).toEqual([
-      {
-        id: 1,
-        name: 'bulbasaur',
-        imageUrl:
-          'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/1.png',
-      },
-      {
-        id: 2,
-        name: 'ivysaur',
-        imageUrl:
-          'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/2.png',
-      },
-    ]);
+    expect(result).toEqual({
+      items: [
+        {
+          id: 1,
+          name: 'bulbasaur',
+          imageUrl:
+            'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/1.png',
+        },
+        {
+          id: 2,
+          name: 'ivysaur',
+          imageUrl:
+            'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/2.png',
+        },
+      ],
+      hasMore: true,
+    });
   });
 
-  it('devuelve una lista vacía cuando la API no tiene resultados', async () => {
+  it('devuelve una página vacía con hasMore false cuando la API no tiene resultados', async () => {
     const responseDTO: PokemonListResponseDTO = { count: 0, next: null, previous: null, results: [] };
     const remoteDataSource = buildRemoteDataSourceMock();
     remoteDataSource.getPokemonList.mockResolvedValue(responseDTO);
@@ -62,13 +65,13 @@ describe('PokemonRepositoryImpl', () => {
 
     const result = await repository.getPokemonList(20, 0);
 
-    expect(result).toEqual([]);
+    expect(result).toEqual({ items: [], hasMore: false });
   });
 
-  it('si remote responde ok, guarda la lista mapeada en cache', async () => {
+  it('en offset 0 guarda en cache solo los items de la página actual (sin mergear con cache previa)', async () => {
     const responseDTO: PokemonListResponseDTO = {
-      count: 1,
-      next: null,
+      count: 1302,
+      next: 'https://pokeapi.co/api/v2/pokemon?limit=20&offset=20',
       previous: null,
       results: [{ name: 'bulbasaur', url: 'https://pokeapi.co/api/v2/pokemon/1/' }],
     };
@@ -79,10 +82,30 @@ describe('PokemonRepositoryImpl', () => {
 
     const result = await repository.getPokemonList(20, 0);
 
-    expect(localDataSource.saveList).toHaveBeenCalledWith(result);
+    expect(localDataSource.getList).not.toHaveBeenCalled();
+    expect(localDataSource.saveList).toHaveBeenCalledWith(result.items);
   });
 
-  it('si remote falla y hay cache disponible, devuelve la cache', async () => {
+  it('en offset > 0 guarda en cache el array acumulado (cache previa + página nueva)', async () => {
+    const responseDTO: PokemonListResponseDTO = {
+      count: 1302,
+      next: 'https://pokeapi.co/api/v2/pokemon?limit=20&offset=40',
+      previous: 'https://pokeapi.co/api/v2/pokemon?limit=20&offset=0',
+      results: [{ name: 'ivysaur', url: 'https://pokeapi.co/api/v2/pokemon/2/' }],
+    };
+    const remoteDataSource = buildRemoteDataSourceMock();
+    remoteDataSource.getPokemonList.mockResolvedValue(responseDTO);
+    const previousItems: PokemonListItem[] = [{ id: 1, name: 'bulbasaur', imageUrl: 'https://example.com/1.png' }];
+    const localDataSource = buildLocalDataSourceMock();
+    localDataSource.getList.mockResolvedValue(previousItems);
+    const repository = new PokemonRepositoryImpl(remoteDataSource, localDataSource);
+
+    const result = await repository.getPokemonList(20, 20);
+
+    expect(localDataSource.saveList).toHaveBeenCalledWith([...previousItems, ...result.items]);
+  });
+
+  it('si remote falla y hay cache disponible, devuelve la cache con hasMore false', async () => {
     const apiError = new PokemonApiError('network', 'No se pudo conectar con la PokéAPI');
     const remoteDataSource = buildRemoteDataSourceMock();
     remoteDataSource.getPokemonList.mockRejectedValue(apiError);
@@ -93,7 +116,7 @@ describe('PokemonRepositoryImpl', () => {
 
     const result = await repository.getPokemonList(20, 0);
 
-    expect(result).toEqual(cachedItems);
+    expect(result).toEqual({ items: cachedItems, hasMore: false });
   });
 
   it('si remote falla y no hay cache, propaga el error original', async () => {

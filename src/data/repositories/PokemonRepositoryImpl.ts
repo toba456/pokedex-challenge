@@ -1,10 +1,10 @@
 import { PokemonDetail } from '../../domain/entities/PokemonDetail';
-import { PokemonListItem } from '../../domain/entities/PokemonListItem';
+import { PokemonListPage } from '../../domain/entities/PokemonListPage';
 import { IPokemonRepository } from '../../domain/repositories/IPokemonRepository';
 import { PokemonLocalDataSource } from '../datasources/local/PokemonLocalDataSource';
 import { PokemonRemoteDataSource } from '../datasources/remote/PokemonRemoteDataSource';
 import { mapPokemonDetailDTOToEntity } from '../mappers/pokemonDetailMapper';
-import { mapPokemonListItemDTOToEntity } from '../mappers/pokemonMapper';
+import { mapPokemonListResponseDTOToPage } from '../mappers/pokemonMapper';
 
 export class PokemonRepositoryImpl implements IPokemonRepository {
   constructor(
@@ -12,17 +12,22 @@ export class PokemonRepositoryImpl implements IPokemonRepository {
     private readonly localDataSource: PokemonLocalDataSource,
   ) {}
 
-  async getPokemonList(limit: number, offset: number): Promise<PokemonListItem[]> {
+  async getPokemonList(limit: number, offset: number): Promise<PokemonListPage> {
     try {
       const response = await this.remoteDataSource.getPokemonList(limit, offset);
-      const items = response.results.map(mapPokemonListItemDTOToEntity);
-      void this.localDataSource.saveList(items).catch(() => undefined);
-      return items;
+      const page = mapPokemonListResponseDTOToPage(response);
+      // offset 0 es siempre una carga desde cero (primer montado o refresh):
+      // la cache se reemplaza en vez de mergearse con una sesión de paginación
+      // anterior que ya no corresponde al listado que se está mostrando.
+      const previousItems = offset === 0 ? [] : ((await this.localDataSource.getList()) ?? []);
+      const accumulatedItems = [...previousItems, ...page.items];
+      void this.localDataSource.saveList(accumulatedItems).catch(() => undefined);
+      return page;
     } catch (error) {
       const cachedItems = await this.localDataSource.getList();
 
       if (cachedItems !== null) {
-        return cachedItems;
+        return { items: cachedItems, hasMore: false };
       }
 
       throw error;
