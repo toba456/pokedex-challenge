@@ -1,6 +1,7 @@
 
 export const colors = {
   nearBlack: '#15161C',
+  white: '#FFFFFF',
   offWhite: '#EDEAE2',
   offWhiteMuted: '#8F8B82',
   pokedexRed: '#D5242A',

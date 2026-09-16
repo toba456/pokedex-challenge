@@ -299,7 +299,9 @@ const styles = StyleSheet.create({
     marginTop: 28,
   },
   buttonText: {
-    color: colors.offWhite,
+    // Blanco puro en vez de offWhite: a 16px regular sobre pokedexRed, offWhite
+    // (#EDEAE2) da 4.25:1, por debajo del 4.5:1 requerido para texto normal.
+    color: colors.white,
     fontFamily: HEADING_FONT_FAMILY,
     fontSize: 16,
   },
