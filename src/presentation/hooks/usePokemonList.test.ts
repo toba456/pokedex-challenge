@@ -1,5 +1,6 @@
 import { act, renderHook, waitFor } from '@testing-library/react-native';
 
+import { PokemonApiError } from '../../data/datasources/remote/PokemonApiError';
 import { getPokemonListUseCase } from '../../di/container';
 import { PokemonListItem, PokemonListPage } from '../../domain/entities';
 import { initialPokemonListState, usePokemonList } from './usePokemonList';
@@ -45,13 +46,13 @@ describe('usePokemonList', () => {
     expect(result.current.hasMore).toBe(true);
   });
 
-  it('pasa a error con el mensaje cuando el use case rechaza', async () => {
-    mockedExecute.mockRejectedValue(new Error('network error'));
+  it('pasa a error con el mensaje amigable cuando el use case rechaza', async () => {
+    mockedExecute.mockRejectedValue(new PokemonApiError('network', 'No se pudo conectar con la PokéAPI'));
 
     const { result } = await renderHook(() => usePokemonList());
 
     await waitFor(() => expect(result.current.state.status).toBe('error'));
-    expect(result.current.state.error).toBe('network error');
+    expect(result.current.state.error).toBe('No pudimos conectarnos. Revisá tu conexión e intentá de nuevo.');
   });
 
   it('loadMore exitoso appendea los items de la siguiente página al offset correcto', async () => {
@@ -87,6 +88,50 @@ describe('usePokemonList', () => {
     });
 
     expect(mockedExecute).not.toHaveBeenCalled();
+  });
+
+  it('loadMore fallido setea loadMoreError con el mensaje amigable sin tocar la lista ya cargada', async () => {
+    const firstPage: PokemonListPage = { items: [pokemon(1)], hasMore: true };
+    mockedExecute
+      .mockResolvedValueOnce(firstPage)
+      .mockRejectedValueOnce(new PokemonApiError('http', 'La PokéAPI respondió con un error (status 500)'));
+
+    const { result } = await renderHook(() => usePokemonList());
+    await waitFor(() => expect(result.current.state.status).toBe('success'));
+
+    await act(async () => {
+      result.current.loadMore();
+    });
+
+    await waitFor(() =>
+      expect(result.current.loadMoreError).toBe('Hubo un problema al obtener los datos. Intentá de nuevo en unos segundos.'),
+    );
+    expect(result.current.state.data).toEqual(firstPage.items);
+    expect(result.current.isLoadingMore).toBe(false);
+  });
+
+  it('reintentar loadMore limpia loadMoreError al empezar la nueva carga', async () => {
+    const firstPage: PokemonListPage = { items: [pokemon(1)], hasMore: true };
+    const secondPage: PokemonListPage = { items: [pokemon(2)], hasMore: false };
+    mockedExecute
+      .mockResolvedValueOnce(firstPage)
+      .mockRejectedValueOnce(new PokemonApiError('network', 'No se pudo conectar con la PokéAPI'))
+      .mockResolvedValueOnce(secondPage);
+
+    const { result } = await renderHook(() => usePokemonList());
+    await waitFor(() => expect(result.current.state.status).toBe('success'));
+
+    await act(async () => {
+      result.current.loadMore();
+    });
+    await waitFor(() => expect(result.current.loadMoreError).not.toBeNull());
+
+    await act(async () => {
+      result.current.loadMore();
+    });
+
+    await waitFor(() => expect(result.current.state.data).toEqual([...firstPage.items, ...secondPage.items]));
+    expect(result.current.loadMoreError).toBeNull();
   });
 
   it('el guard contra doble llamada evita disparar loadMore de nuevo mientras isLoadingMore es true', async () => {

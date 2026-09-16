@@ -33,6 +33,7 @@ describe('PokemonListScreen', () => {
     loadMore: jest.fn(),
     isLoadingMore: false,
     hasMore: true,
+    loadMoreError: null,
     ...overrides,
   });
 
@@ -106,5 +107,50 @@ describe('PokemonListScreen', () => {
     const { queryByTestId } = await render(<PokemonListScreen />);
 
     expect(queryByTestId('pokemon-list-loading-more')).toBeNull();
+  });
+
+  it('no muestra el error de "cargar más" cuando loadMoreError es null', async () => {
+    const pokemonList: PokemonListItem[] = [{ id: 1, name: 'bulbasaur', imageUrl: 'https://example.com/1.png' }];
+    mockedUsePokemonList.mockReturnValue(
+      buildHookResult({ state: { status: 'success', data: pokemonList }, loadMoreError: null }),
+    );
+
+    const { queryByTestId } = await render(<PokemonListScreen />);
+
+    expect(queryByTestId('pokemon-list-load-more-error')).toBeNull();
+  });
+
+  it('muestra el error de "cargar más" en forma inline sin ocultar la lista ya cargada', async () => {
+    const pokemonList: PokemonListItem[] = [{ id: 1, name: 'bulbasaur', imageUrl: 'https://example.com/1.png' }];
+    mockedUsePokemonList.mockReturnValue(
+      buildHookResult({
+        state: { status: 'success', data: pokemonList },
+        loadMoreError: 'No pudimos conectarnos. Revisá tu conexión e intentá de nuevo.',
+      }),
+    );
+
+    const { getByTestId, getByText } = await render(<PokemonListScreen />);
+
+    expect(getByTestId('pokemon-list')).toBeTruthy();
+    expect(getByTestId('pokemon-list-load-more-error')).toBeTruthy();
+    expect(getByText('No pudimos conectarnos. Revisá tu conexión e intentá de nuevo.')).toBeTruthy();
+  });
+
+  it('el botón "Reintentar" del error de "cargar más" vuelve a llamar loadMore', async () => {
+    const pokemonList: PokemonListItem[] = [{ id: 1, name: 'bulbasaur', imageUrl: 'https://example.com/1.png' }];
+    const loadMore = jest.fn();
+    mockedUsePokemonList.mockReturnValue(
+      buildHookResult({
+        state: { status: 'success', data: pokemonList },
+        loadMore,
+        loadMoreError: 'Hubo un problema al obtener los datos. Intentá de nuevo en unos segundos.',
+      }),
+    );
+
+    const { getByTestId } = await render(<PokemonListScreen />);
+
+    await fireEvent.press(getByTestId('pokemon-list-load-more-retry'));
+
+    expect(loadMore).toHaveBeenCalledTimes(1);
   });
 });

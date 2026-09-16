@@ -1,5 +1,6 @@
 import { renderHook, waitFor } from '@testing-library/react-native';
 
+import { PokemonApiError } from '../../data/datasources/remote/PokemonApiError';
 import { getPokemonDetailUseCase } from '../../di/container';
 import { PokemonDetail } from '../../domain/entities';
 import { initialPokemonDetailState, usePokemonDetail } from './usePokemonDetail';
@@ -50,12 +51,12 @@ describe('usePokemonDetail', () => {
     expect(result.current.data).toEqual(pokemonDetail);
   });
 
-  it('pasa a error con el mensaje cuando el use case rechaza', async () => {
-    mockedExecute.mockRejectedValue(new Error('La PokéAPI respondió con un error (status 404)'));
+  it('pasa a error con el mensaje amigable cuando el use case rechaza', async () => {
+    mockedExecute.mockRejectedValue(new PokemonApiError('http', 'La PokéAPI respondió con un error (status 404)'));
 
     const { result } = await renderHook(() => usePokemonDetail(99999));
 
     await waitFor(() => expect(result.current.status).toBe('error'));
-    expect(result.current.error).toBe('La PokéAPI respondió con un error (status 404)');
+    expect(result.current.error).toBe('Hubo un problema al obtener los datos. Intentá de nuevo en unos segundos.');
   });
 });
