@@ -234,17 +234,16 @@ src/
 │   ├── mappers/           # pokemonMapper, pokemonDetailMapper: traducen DTO de la API a entidades de domain
 │   └── repositories/      # PokemonRepositoryImpl: implementa IPokemonRepository con estrategia network-first + cache
 ├── presentation/
-│   ├── components/        # PokemonListItem y skeletons de listado/detalle: UI pura, memoizada donde aplica
-│   ├── context/           # reservado para contexts de estado global adicionales (sin uso actual)
-│   ├── hooks/             # usePokemonList, usePokemonDetail, usePulseAnimation: conectan pantallas con los casos de uso
+│   ├── components/        # Button, PokemonListItem y skeletons de listado/detalle: UI pura, memoizada donde aplica
+│   ├── hooks/             # usePokemonList, usePokemonDetail, usePulseAnimation, useDetailTransition, useIsLandscape: conectan pantallas con los casos de uso y manejan animaciones y breakpoints de orientación
 │   ├── navigation/        # navegador manual (reducer + context propio con estado 'list' | 'detail', sin librerías)
 │   └── screens/
 │       ├── PokemonList/   # pantalla de listado
 │       └── PokemonDetail/ # pantalla de detalle
 ├── shared/
-│   ├── constants/         # colores, tipografía, radios, URL de la API, claves de storage y colores/labels por tipo de Pokémon
+│   ├── constants/         # colores, tipografía, radios, breakpoints de tablet/landscape, URL de la API, claves de storage y colores/labels/stats por tipo de Pokémon
 │   ├── types/              # RequestState<T>, PokemonType, PokemonStatName: tipado compartido entre capas
-│   └── utils/               # getUserFriendlyErrorMessage, safeAreaInsets: helpers genéricos
+│   └── utils/               # capitalize, formatPokemonId, getUserFriendlyErrorMessage, safeAreaInsets: helpers genéricos
 └── di/                       # container.ts: inyección de dependencias manual, arma repositorios y casos de uso
 ```
 
