@@ -3,6 +3,7 @@ import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { PokemonListItem as PokemonListItemEntity } from '@domain/entities';
 import { colors, HEADING_FONT_FAMILY, MONOSPACE_FONT_FAMILY, RADIUS } from '@shared/constants';
+import { capitalize, formatPokemonId } from '@shared/utils';
 
 interface PokemonListItemProps {
   pokemon: PokemonListItemEntity;
@@ -10,7 +11,7 @@ interface PokemonListItemProps {
 }
 
 function PokemonListItemComponent({ pokemon, onPress }: PokemonListItemProps) {
-  const displayName = pokemon.name.charAt(0).toUpperCase() + pokemon.name.slice(1);
+  const displayName = capitalize(pokemon.name);
 
   return (
     <Pressable
@@ -29,7 +30,7 @@ function PokemonListItemComponent({ pokemon, onPress }: PokemonListItemProps) {
         />
       </View>
       <View style={styles.info}>
-        <Text style={styles.id}>#{String(pokemon.id).padStart(3, '0')}</Text>
+        <Text style={styles.id}>{formatPokemonId(pokemon.id)}</Text>
         <Text style={styles.name}>{pokemon.name}</Text>
       </View>
       <Text style={styles.chevron}>›</Text>

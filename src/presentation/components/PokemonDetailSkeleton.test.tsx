@@ -5,6 +5,7 @@ import { PokemonDetailSkeleton } from './PokemonDetailSkeleton';
 
 jest.mock('../hooks', () => ({
   ...jest.requireActual('../hooks/usePulseAnimation'),
+  ...jest.requireActual('../hooks/useIsLandscape'),
 }));
 
 jest.mock('react-native/Libraries/Utilities/useWindowDimensions');

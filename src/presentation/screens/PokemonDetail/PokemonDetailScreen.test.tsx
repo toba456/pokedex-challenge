@@ -8,6 +8,7 @@ import { PokemonDetailScreen } from './PokemonDetailScreen';
 
 jest.mock('../../hooks', () => ({
   ...jest.requireActual('../../hooks/usePulseAnimation'),
+  ...jest.requireActual('../../hooks/useIsLandscape'),
   usePokemonDetail: jest.fn(),
 }));
 

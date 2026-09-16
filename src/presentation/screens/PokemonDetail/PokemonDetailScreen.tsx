@@ -11,8 +11,9 @@ import {
   POKEMON_TYPE_COLORS,
   POKEMON_TYPE_LABELS,
 } from '@shared/constants';
-import { usePokemonDetail } from '../../hooks';
+import { useIsLandscape, usePokemonDetail } from '../../hooks';
 import { usePokedexNavigation } from '../../navigation';
+import { capitalize, formatPokemonId } from '@shared/utils';
 import { styles } from './PokemonDetailScreen.styles';
 
 function FloatingBackButton({ onPress }: { onPress: () => void }) {
@@ -50,7 +51,7 @@ function StatBar({ stat, accentColor }: { stat: PokemonStat; accentColor: string
 function DetailFields({ pokemon, accentColor }: { pokemon: PokemonDetail; accentColor: string }) {
   return (
     <>
-      <Text style={styles.id}>#{String(pokemon.id).padStart(3, '0')}</Text>
+      <Text style={styles.id}>{formatPokemonId(pokemon.id)}</Text>
       <Text style={styles.name}>{pokemon.name}</Text>
 
       <View style={styles.chipRow}>
@@ -99,12 +100,12 @@ function DetailFields({ pokemon, accentColor }: { pokemon: PokemonDetail; accent
 
 function PokemonDetailView({ pokemon }: { pokemon: PokemonDetail }) {
   const accentColor = POKEMON_TYPE_COLORS[pokemon.types[0]] ?? colors.pokedexRed;
-  const displayName = pokemon.name.charAt(0).toUpperCase() + pokemon.name.slice(1);
-  const { width, height } = useWindowDimensions();
+  const displayName = capitalize(pokemon.name);
+  const { width } = useWindowDimensions();
   // Landscape (tablet apaisada): hero y contenido van lado a lado en vez de
   // apilados, para no forzar un scroll largo cuando el alto disponible es
   // chico y sobra ancho.
-  const isLandscape = width > height;
+  const isLandscape = useIsLandscape();
 
   if (isLandscape) {
     const heroWidth = Math.round(width * DETAIL_HERO_LANDSCAPE_RATIO);

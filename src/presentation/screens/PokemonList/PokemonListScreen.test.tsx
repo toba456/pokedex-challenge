@@ -7,6 +7,7 @@ import { PokemonListScreen } from './PokemonListScreen';
 
 jest.mock('../../hooks', () => ({
   ...jest.requireActual('../../hooks/usePulseAnimation'),
+  ...jest.requireActual('../../hooks/useIsLandscape'),
   usePokemonList: jest.fn(),
 }));
 

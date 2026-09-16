@@ -1,6 +1,6 @@
 import { Animated, StyleSheet, useWindowDimensions, View } from 'react-native';
 
-import { usePulseAnimation } from '../hooks';
+import { useIsLandscape, usePulseAnimation } from '../hooks';
 import { colors, DETAIL_HERO_LANDSCAPE_RATIO, RADIUS, SHEET_RADIUS } from '@shared/constants';
 import { getSafeAreaInsets } from '@shared/utils';
 
@@ -45,8 +45,8 @@ function SkeletonFields() {
 
 export function PokemonDetailSkeleton() {
   const opacity = usePulseAnimation();
-  const { width, height } = useWindowDimensions();
-  const isLandscape = width > height;
+  const { width } = useWindowDimensions();
+  const isLandscape = useIsLandscape();
 
   if (isLandscape) {
     const heroWidth = Math.round(width * DETAIL_HERO_LANDSCAPE_RATIO);

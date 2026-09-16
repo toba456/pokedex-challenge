@@ -2,7 +2,7 @@ import { memo, useCallback } from 'react';
 import { ActivityIndicator, FlatList, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 
 import { Button, PokemonListItem, PokemonListItemSkeleton } from '../../components';
-import { usePokemonList } from '../../hooks';
+import { useIsLandscape, usePokemonList } from '../../hooks';
 import { useNavigationActions } from '../../navigation';
 import { PokemonListItem as PokemonListItemEntity } from '@domain/entities';
 import {
@@ -135,8 +135,8 @@ function LoadMoreError({ message, onRetry }: { message: string; onRetry: () => v
 function PokemonListScreenComponent() {
   const { state, loadMore, isLoadingMore, loadMoreError } = usePokemonList();
   const { goToDetail } = useNavigationActions();
-  const { width, height } = useWindowDimensions();
-  const isLandscape = width > height;
+  const { width } = useWindowDimensions();
+  const isLandscape = useIsLandscape();
   const contentWidth = isLandscape
     ? Math.min(width * LIST_CONTENT_WIDTH_LANDSCAPE_RATIO, LIST_MAX_CONTENT_WIDTH_LANDSCAPE)
     : Math.min(width, MAX_CONTENT_WIDTH);
