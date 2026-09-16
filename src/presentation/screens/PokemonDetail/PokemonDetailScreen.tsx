@@ -20,6 +20,8 @@ import {
   POKEMON_STAT_MAX_VALUE,
   POKEMON_TYPE_COLORS,
   POKEMON_TYPE_LABELS,
+  RADIUS,
+  SHEET_RADIUS,
 } from '../../../shared/constants';
 import { usePokemonDetail } from '../../hooks';
 import { usePokedexNavigation } from '../../navigation';
@@ -50,53 +52,61 @@ function PokemonDetailView({ pokemon, onGoToList }: { pokemon: PokemonDetail; on
   const accentColor = POKEMON_TYPE_COLORS[pokemon.types[0]] ?? colors.pokedexRed;
 
   return (
-    <SafeAreaView style={styles.safeArea}>
-      <ScrollView style={styles.container} testID="pokemon-detail-content">
+    <View style={styles.screen} testID="pokemon-detail-content">
+      <ScrollView bounces={false}>
         <View style={[styles.hero, { backgroundColor: accentColor }]}>
           <Image source={{ uri: pokemon.imageUrl }} style={styles.heroImage} resizeMode="contain" />
         </View>
 
-        <View style={styles.content}>
-          <Text style={styles.id}>#{String(pokemon.id).padStart(3, '0')}</Text>
-          <Text style={styles.name}>{pokemon.name}</Text>
+        <SafeAreaView style={styles.sheet}>
+          <View style={styles.content}>
+            <Text style={styles.id}>#{String(pokemon.id).padStart(3, '0')}</Text>
+            <Text style={styles.name}>{pokemon.name}</Text>
 
-          <View style={styles.chipRow}>
-            {pokemon.types.map((type) => (
-              <View key={type} style={[styles.chip, { backgroundColor: POKEMON_TYPE_COLORS[type] }]}>
-                <Text style={styles.chipText}>{POKEMON_TYPE_LABELS[type]}</Text>
+            <View style={styles.chipRow}>
+              {pokemon.types.map((type) => {
+                const typeColor = POKEMON_TYPE_COLORS[type];
+                return (
+                  <View
+                    key={type}
+                    style={[styles.chip, { borderColor: typeColor, backgroundColor: `${typeColor}26` }]}
+                  >
+                    <Text style={[styles.chipText, { color: typeColor }]}>{POKEMON_TYPE_LABELS[type]}</Text>
+                  </View>
+                );
+              })}
+            </View>
+
+            <View style={styles.metricsRow}>
+              <View style={styles.metric}>
+                <Text style={styles.metricLabel}>Altura</Text>
+                <Text style={styles.metricValue}>{pokemon.height.toFixed(1)} m</Text>
               </View>
-            ))}
-          </View>
-
-          <View style={styles.metricsRow}>
-            <View style={styles.metric}>
-              <Text style={styles.metricLabel}>Altura</Text>
-              <Text style={styles.metricValue}>{pokemon.height.toFixed(1)} m</Text>
+              <View style={styles.metric}>
+                <Text style={styles.metricLabel}>Peso</Text>
+                <Text style={styles.metricValue}>{pokemon.weight.toFixed(1)} kg</Text>
+              </View>
+              <View style={styles.metric}>
+                <Text style={styles.metricLabel}>Exp. base</Text>
+                <Text style={styles.metricValue}>{pokemon.baseExperience ?? '—'}</Text>
+              </View>
             </View>
-            <View style={styles.metric}>
-              <Text style={styles.metricLabel}>Peso</Text>
-              <Text style={styles.metricValue}>{pokemon.weight.toFixed(1)} kg</Text>
+
+            <Text style={styles.sectionTitle}>Habilidades</Text>
+            <Text style={styles.abilities}>{pokemon.abilities.join(', ')}</Text>
+
+            <Text style={styles.sectionTitle}>Estadísticas</Text>
+            <View style={styles.statsBlock}>
+              {pokemon.stats.map((stat) => (
+                <StatBar key={stat.name} stat={stat} accentColor={accentColor} />
+              ))}
             </View>
-            <View style={styles.metric}>
-              <Text style={styles.metricLabel}>Exp. base</Text>
-              <Text style={styles.metricValue}>{pokemon.baseExperience ?? '—'}</Text>
-            </View>
+
+            <BackButton onPress={onGoToList} />
           </View>
-
-          <Text style={styles.sectionTitle}>Habilidades</Text>
-          <Text style={styles.abilities}>{pokemon.abilities.join(', ')}</Text>
-
-          <Text style={styles.sectionTitle}>Estadísticas</Text>
-          <View style={styles.statsBlock}>
-            {pokemon.stats.map((stat) => (
-              <StatBar key={stat.name} stat={stat} accentColor={accentColor} />
-            ))}
-          </View>
-
-          <BackButton onPress={onGoToList} />
-        </View>
+        </SafeAreaView>
       </ScrollView>
-    </SafeAreaView>
+    </View>
   );
 }
 
@@ -105,7 +115,7 @@ function PokemonDetailContent({ id, onGoToList }: { id: number; onGoToList: () =
 
   if (state.status === 'idle' || state.status === 'loading') {
     return (
-      <SafeAreaView style={styles.centered} testID="pokemon-detail-loading">
+      <SafeAreaView style={styles.centeredSafe} testID="pokemon-detail-loading">
         <ActivityIndicator color={colors.pokedexRed} size="large" />
       </SafeAreaView>
     );
@@ -113,7 +123,7 @@ function PokemonDetailContent({ id, onGoToList }: { id: number; onGoToList: () =
 
   if (state.status === 'error' || !state.data) {
     return (
-      <SafeAreaView style={styles.centered} testID="pokemon-detail-error">
+      <SafeAreaView style={styles.centeredSafe} testID="pokemon-detail-error">
         <Text style={styles.message}>{state.error ?? 'Ocurrió un error inesperado.'}</Text>
         <BackButton onPress={onGoToList} />
       </SafeAreaView>
@@ -128,7 +138,7 @@ export function PokemonDetailScreen() {
 
   if (selectedPokemonId === null) {
     return (
-      <SafeAreaView style={styles.centered} testID="pokemon-detail-error">
+      <SafeAreaView style={styles.centeredSafe} testID="pokemon-detail-error">
         <Text style={styles.message}>No se seleccionó ningún pokémon.</Text>
         <BackButton onPress={goToList} />
       </SafeAreaView>
@@ -139,22 +149,17 @@ export function PokemonDetailScreen() {
 }
 
 const styles = StyleSheet.create({
-  safeArea: {
-    flex: 1,
-    backgroundColor: colors.nearBlack,
-    paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0,
-  },
-  container: {
+  screen: {
     flex: 1,
     backgroundColor: colors.nearBlack,
   },
-  centered: {
+  centeredSafe: {
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: colors.nearBlack,
+    paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0,
     padding: 24,
-    paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 24,
     gap: 24,
   },
   message: {
@@ -164,16 +169,24 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   hero: {
-    height: 220,
+    height: 300,
     alignItems: 'center',
     justifyContent: 'center',
   },
   heroImage: {
-    width: 200,
-    height: 200,
+    width: 220,
+    height: 220,
+  },
+  sheet: {
+    marginTop: -SHEET_RADIUS,
+    borderTopLeftRadius: SHEET_RADIUS,
+    borderTopRightRadius: SHEET_RADIUS,
+    backgroundColor: colors.nearBlack,
+    overflow: 'hidden',
   },
   content: {
     padding: 20,
+    paddingTop: 28,
     gap: 4,
   },
   id: {
@@ -195,10 +208,10 @@ const styles = StyleSheet.create({
   chip: {
     paddingHorizontal: 12,
     paddingVertical: 4,
-    borderRadius: 4,
+    borderRadius: RADIUS,
+    borderWidth: 1,
   },
   chipText: {
-    color: colors.nearBlack,
     fontFamily: HEADING_FONT_FAMILY,
     fontSize: 13,
     textTransform: 'capitalize',
@@ -270,7 +283,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.pokedexRed,
     paddingHorizontal: 24,
     paddingVertical: 12,
-    borderRadius: 4,
+    borderRadius: RADIUS,
     alignSelf: 'flex-start',
     marginTop: 28,
   },
