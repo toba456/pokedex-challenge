@@ -9,7 +9,14 @@ import { colors } from './src/shared/constants';
 function RootNavigator() {
   const { screen } = usePokedexNavigation();
 
-  return <View style={styles.container}>{screen === 'list' ? <PokemonListScreen /> : <PokemonDetailScreen />}</View>;
+  return (
+    <View style={styles.container}>
+      <View style={[styles.screenSlot, screen === 'detail' && styles.hidden]}>
+        <PokemonListScreen />
+      </View>
+      {screen === 'detail' && <PokemonDetailScreen />}
+    </View>
+  );
 }
 
 export default function App() {
@@ -25,5 +32,11 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: colors.nearBlack,
+  },
+  screenSlot: {
+    flex: 1,
+  },
+  hidden: {
+    display: 'none',
   },
 });
