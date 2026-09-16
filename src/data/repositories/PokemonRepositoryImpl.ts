@@ -40,10 +40,23 @@ export class PokemonRepositoryImpl implements IPokemonRepository {
     }
   }
 
-  // Sin cache local a diferencia de getPokemonList: el detalle no se cachea
-  // todavía (a evaluar más adelante como paso aparte, no se asume acá).
+  // Mismo patrón network-first que getPokemonList, pero cacheado por id
+  // individual: si el remote falla, solo hay fallback si ESE id puntual
+  // tiene cache guardada (no cruza con el detalle de otro pokemon).
   async getPokemonDetail(id: number): Promise<PokemonDetail> {
-    const dto = await this.remoteDataSource.getPokemonDetail(id);
-    return mapPokemonDetailDTOToEntity(dto);
+    try {
+      const dto = await this.remoteDataSource.getPokemonDetail(id);
+      const detail = mapPokemonDetailDTOToEntity(dto);
+      void this.localDataSource.saveDetail(id, detail).catch(() => undefined);
+      return detail;
+    } catch (error) {
+      const cachedDetail = await this.localDataSource.getDetail(id);
+
+      if (cachedDetail !== null) {
+        return cachedDetail;
+      }
+
+      throw error;
+    }
   }
 }

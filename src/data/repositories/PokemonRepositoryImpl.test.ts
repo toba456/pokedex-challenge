@@ -1,3 +1,4 @@
+import { PokemonDetail } from '@domain/entities/PokemonDetail';
 import { PokemonListItem } from '@domain/entities/PokemonListItem';
 import { PokemonLocalDataSource } from '../datasources/local/PokemonLocalDataSource';
 import { PokemonApiError } from '../datasources/remote/PokemonApiError';
@@ -16,6 +17,8 @@ const buildLocalDataSourceMock = (): jest.Mocked<PokemonLocalDataSource> =>
   ({
     saveList: jest.fn().mockResolvedValue(undefined),
     getList: jest.fn(),
+    saveDetail: jest.fn().mockResolvedValue(undefined),
+    getDetail: jest.fn(),
   }) as unknown as jest.Mocked<PokemonLocalDataSource>;
 
 describe('PokemonRepositoryImpl', () => {
@@ -181,27 +184,67 @@ describe('PokemonRepositoryImpl', () => {
       });
     });
 
-    it('no consulta ni escribe la cache local (el detalle no se cachea todavía)', async () => {
+    const mappedPikachu: PokemonDetail = {
+      id: 25,
+      name: 'pikachu',
+      imageUrl:
+        'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/25.png',
+      types: ['electric'],
+      abilities: ['static'],
+      stats: [{ name: 'hp', baseValue: 35 }],
+      height: 0.4,
+      weight: 6,
+      baseExperience: 112,
+    };
+
+    it('si remote responde ok, guarda el detalle mapeado en cache bajo ese id', async () => {
       const remoteDataSource = buildRemoteDataSourceMock();
       remoteDataSource.getPokemonDetail.mockResolvedValue(pikachuDTO);
       const localDataSource = buildLocalDataSourceMock();
       const repository = new PokemonRepositoryImpl(remoteDataSource, localDataSource);
 
-      await repository.getPokemonDetail(25);
+      const result = await repository.getPokemonDetail(25);
 
-      expect(localDataSource.saveList).not.toHaveBeenCalled();
-      expect(localDataSource.getList).not.toHaveBeenCalled();
+      expect(localDataSource.saveDetail).toHaveBeenCalledWith(25, result);
     });
 
-    it('propaga el error del datasource sin caer a ninguna cache', async () => {
+    it('si remote falla y hay cache para ese id, devuelve la cache', async () => {
+      const apiError = new PokemonApiError('network', 'No se pudo conectar con la PokéAPI');
+      const remoteDataSource = buildRemoteDataSourceMock();
+      remoteDataSource.getPokemonDetail.mockRejectedValue(apiError);
+      const localDataSource = buildLocalDataSourceMock();
+      localDataSource.getDetail.mockResolvedValue(mappedPikachu);
+      const repository = new PokemonRepositoryImpl(remoteDataSource, localDataSource);
+
+      const result = await repository.getPokemonDetail(25);
+
+      expect(localDataSource.getDetail).toHaveBeenCalledWith(25);
+      expect(result).toEqual(mappedPikachu);
+    });
+
+    it('si remote falla y no hay cache para ese id, propaga el error original', async () => {
       const apiError = new PokemonApiError('http', 'La PokéAPI respondió con un error (status 404)');
       const remoteDataSource = buildRemoteDataSourceMock();
       remoteDataSource.getPokemonDetail.mockRejectedValue(apiError);
       const localDataSource = buildLocalDataSourceMock();
+      localDataSource.getDetail.mockResolvedValue(null);
       const repository = new PokemonRepositoryImpl(remoteDataSource, localDataSource);
 
       await expect(repository.getPokemonDetail(99999)).rejects.toBe(apiError);
-      expect(localDataSource.getList).not.toHaveBeenCalled();
+    });
+
+    it('si remote falla y solo hay cache de otro id, no la usa y propaga el error', async () => {
+      const apiError = new PokemonApiError('network', 'No se pudo conectar con la PokéAPI');
+      const remoteDataSource = buildRemoteDataSourceMock();
+      remoteDataSource.getPokemonDetail.mockRejectedValue(apiError);
+      const localDataSource = buildLocalDataSourceMock();
+      localDataSource.getDetail.mockImplementation((id: number) =>
+        Promise.resolve(id === 25 ? mappedPikachu : null),
+      );
+      const repository = new PokemonRepositoryImpl(remoteDataSource, localDataSource);
+
+      await expect(repository.getPokemonDetail(1)).rejects.toBe(apiError);
+      expect(localDataSource.getDetail).toHaveBeenCalledWith(1);
     });
   });
 });
