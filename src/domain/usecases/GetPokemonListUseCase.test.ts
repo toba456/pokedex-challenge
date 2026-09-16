@@ -4,6 +4,7 @@ import { GetPokemonListUseCase } from './GetPokemonListUseCase';
 
 const buildRepositoryMock = (): jest.Mocked<IPokemonRepository> => ({
   getPokemonList: jest.fn(),
+  getPokemonDetail: jest.fn(),
 });
 
 describe('GetPokemonListUseCase', () => {
