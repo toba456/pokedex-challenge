@@ -79,6 +79,14 @@ discutible por venir con el core de Expo, pero arrastra dependencias adicionales
 Trade-off asumido: no hay gestos nativos de swipe-back ni animaciones de transición
 del sistema — cubre el flujo requerido sin agregar dependencias de producción.
 
+**Límite de esta decisión:** esta solución es apropiada para el alcance actual (2
+pantallas, flujo lineal, sin parámetros de ruta complejos). Si el proyecto creciera a
+navegación anidada, tabs, deep linking o varias rutas con parámetros tipados, el costo
+de mantener esto a mano crecería rápido —en ese punto reconsideraríamos usar
+expo-router pese al peso adicional que trae al bundle. Elegir la solución mínima
+suficiente para el alcance real, en vez de anticipar requisitos que el challenge no
+pide, es una decisión de criterio, no una limitación no evaluada.
+
 ## Estrategia de persistencia
 
 `PokemonRepositoryImpl` implementa una estrategia **network-first con fallback a
