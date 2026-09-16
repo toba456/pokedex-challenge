@@ -1,7 +1,7 @@
-import { renderHook, waitFor } from '@testing-library/react-native';
+import { act, renderHook, waitFor } from '@testing-library/react-native';
 
 import { getPokemonListUseCase } from '../../di/container';
-import { PokemonListItem } from '../../domain/entities';
+import { PokemonListItem, PokemonListPage } from '../../domain/entities';
 import { initialPokemonListState, usePokemonList } from './usePokemonList';
 
 jest.mock('../../di/container', () => ({
@@ -9,6 +9,8 @@ jest.mock('../../di/container', () => ({
 }));
 
 const mockedExecute = getPokemonListUseCase.execute as jest.Mock;
+
+const pokemon = (id: number): PokemonListItem => ({ id, name: `pokemon-${id}`, imageUrl: `https://example.com/${id}.png` });
 
 describe('usePokemonList', () => {
   beforeEach(() => {
@@ -22,23 +24,25 @@ describe('usePokemonList', () => {
     expect(initialPokemonListState).toEqual({ status: 'loading' });
   });
 
-  it('pasa a loading al montar y dispara la carga a través del use case', async () => {
+  it('pasa a loading al montar y dispara la carga inicial a través del use case', async () => {
     mockedExecute.mockReturnValue(new Promise(() => undefined));
 
     const { result } = await renderHook(() => usePokemonList());
 
-    expect(result.current.status).toBe('loading');
+    expect(result.current.state.status).toBe('loading');
     expect(mockedExecute).toHaveBeenCalledTimes(1);
+    expect(mockedExecute).toHaveBeenCalledWith(20, 0);
   });
 
-  it('pasa a success con los datos cuando el use case resuelve', async () => {
-    const pokemonList: PokemonListItem[] = [{ id: 1, name: 'bulbasaur', imageUrl: 'https://example.com/1.png' }];
-    mockedExecute.mockResolvedValue(pokemonList);
+  it('pasa a success con los items y hasMore de la primera página', async () => {
+    const page: PokemonListPage = { items: [pokemon(1)], hasMore: true };
+    mockedExecute.mockResolvedValue(page);
 
     const { result } = await renderHook(() => usePokemonList());
 
-    await waitFor(() => expect(result.current.status).toBe('success'));
-    expect(result.current.data).toEqual(pokemonList);
+    await waitFor(() => expect(result.current.state.status).toBe('success'));
+    expect(result.current.state.data).toEqual(page.items);
+    expect(result.current.hasMore).toBe(true);
   });
 
   it('pasa a error con el mensaje cuando el use case rechaza', async () => {
@@ -46,7 +50,60 @@ describe('usePokemonList', () => {
 
     const { result } = await renderHook(() => usePokemonList());
 
-    await waitFor(() => expect(result.current.status).toBe('error'));
-    expect(result.current.error).toBe('network error');
+    await waitFor(() => expect(result.current.state.status).toBe('error'));
+    expect(result.current.state.error).toBe('network error');
+  });
+
+  it('loadMore exitoso appendea los items de la siguiente página al offset correcto', async () => {
+    const firstPage: PokemonListPage = { items: [pokemon(1)], hasMore: true };
+    const secondPage: PokemonListPage = { items: [pokemon(2)], hasMore: false };
+    mockedExecute.mockResolvedValueOnce(firstPage).mockResolvedValueOnce(secondPage);
+
+    const { result } = await renderHook(() => usePokemonList());
+    await waitFor(() => expect(result.current.state.status).toBe('success'));
+
+    await act(async () => {
+      result.current.loadMore();
+    });
+
+    expect(mockedExecute).toHaveBeenNthCalledWith(2, 20, 20);
+    await waitFor(() => expect(result.current.state.data).toEqual([...firstPage.items, ...secondPage.items]));
+    expect(result.current.hasMore).toBe(false);
+    expect(result.current.isLoadingMore).toBe(false);
+  });
+
+  it('loadMore no hace nada cuando hasMore es false', async () => {
+    const onlyPage: PokemonListPage = { items: [pokemon(1)], hasMore: false };
+    mockedExecute.mockResolvedValue(onlyPage);
+
+    const { result } = await renderHook(() => usePokemonList());
+    await waitFor(() => expect(result.current.state.status).toBe('success'));
+    expect(result.current.hasMore).toBe(false);
+
+    mockedExecute.mockClear();
+
+    await act(async () => {
+      result.current.loadMore();
+    });
+
+    expect(mockedExecute).not.toHaveBeenCalled();
+  });
+
+  it('el guard contra doble llamada evita disparar loadMore de nuevo mientras isLoadingMore es true', async () => {
+    const firstPage: PokemonListPage = { items: [pokemon(1)], hasMore: true };
+    mockedExecute.mockResolvedValueOnce(firstPage).mockReturnValueOnce(new Promise(() => undefined));
+
+    const { result } = await renderHook(() => usePokemonList());
+    await waitFor(() => expect(result.current.state.status).toBe('success'));
+
+    // Dos llamadas sincrónicas seguidas, sin esperar entre medio: la segunda
+    // debe quedar bloqueada por el guard de isLoadingMoreRef antes de que
+    // haya oportunidad de re-renderizar.
+    act(() => {
+      result.current.loadMore();
+      result.current.loadMore();
+    });
+
+    expect(mockedExecute).toHaveBeenCalledTimes(2);
   });
 });

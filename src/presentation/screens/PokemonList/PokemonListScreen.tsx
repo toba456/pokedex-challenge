@@ -12,12 +12,28 @@ function ItemSeparator() {
   return <View style={styles.separator} />;
 }
 
+function ListFooter({ isLoadingMore }: { isLoadingMore: boolean }) {
+  if (!isLoadingMore) {
+    return null;
+  }
+
+  return (
+    <View style={styles.footer} testID="pokemon-list-loading-more">
+      <ActivityIndicator color={colors.pokedexRed} size="small" />
+    </View>
+  );
+}
+
 function ListContent({
   state,
   onPress,
+  onEndReached,
+  isLoadingMore,
 }: {
   state: RequestState<PokemonListItemEntity[]>;
   onPress: (id: number) => void;
+  onEndReached: () => void;
+  isLoadingMore: boolean;
 }) {
   if (state.status === 'idle' || state.status === 'loading') {
     return (
@@ -53,18 +69,21 @@ function ListContent({
       keyExtractor={(item) => String(item.id)}
       renderItem={({ item }) => <PokemonListItem pokemon={item} onPress={onPress} />}
       ItemSeparatorComponent={ItemSeparator}
+      onEndReached={onEndReached}
+      onEndReachedThreshold={0.5}
+      ListFooterComponent={<ListFooter isLoadingMore={isLoadingMore} />}
     />
   );
 }
 
 export function PokemonListScreen() {
-  const state = usePokemonList();
+  const { state, loadMore, isLoadingMore } = usePokemonList();
   const { goToDetail } = usePokedexNavigation();
 
   return (
     <View style={styles.safeArea}>
       <Text style={styles.title}>Pokédex</Text>
-      <ListContent state={state} onPress={goToDetail} />
+      <ListContent state={state} onPress={goToDetail} onEndReached={loadMore} isLoadingMore={isLoadingMore} />
     </View>
   );
 }
@@ -104,5 +123,8 @@ const styles = StyleSheet.create({
     fontFamily: HEADING_FONT_FAMILY,
     fontSize: 16,
     textAlign: 'center',
+  },
+  footer: {
+    paddingVertical: 20,
   },
 });
