@@ -112,7 +112,7 @@ listado como en el detalle, mediante un tipo `RequestState<T>` compartido
 
 ## Diseño responsive
 
-El contenido de ambas pantallas se limita a un ancho máximo de lectura
+El contenido de las pantallas se limita a un ancho máximo de lectura
 (`MAX_CONTENT_WIDTH`, `shared/constants/layout.ts`) y se centra cuando la
 pantalla es más ancha que eso, calculado con `useWindowDimensions()`
 (reacciona a rotación/resize, a diferencia del `Dimensions` estático). En el
