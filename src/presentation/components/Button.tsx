@@ -53,14 +53,21 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   textButton: {
+    // offWhiteMuted en vez de pokedexRed: el borde no necesita el peso del acento de
+    // marca para leerse como tappable, y así se distingue con claridad de la
+    // prominencia de primaryButton (relleno pokedexRed).
     borderWidth: 1,
-    borderColor: colors.pokedexRed,
+    borderColor: colors.offWhiteMuted,
     borderRadius: RADIUS,
     paddingHorizontal: 18,
     paddingVertical: 9,
   },
   textButtonText: {
-    color: colors.pokedexRed,
+    // Blanco puro en vez de pokedexRed: a 13px ni con fontWeight 600 llega al
+    // umbral de "texto grande" (mínimo 14px con negrita), y pokedexRed sobre
+    // nearBlack da 3.54:1, por debajo del 4.5:1 requerido. Se evita oscurecer
+    // pokedexRed porque es el color de marca, usado en más lugares.
+    color: colors.white,
     fontFamily: HEADING_FONT_FAMILY,
     fontSize: 13,
     fontWeight: '600',
