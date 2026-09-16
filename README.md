@@ -123,6 +123,21 @@ barras de stats desproporcionadamente largas en tablets. En pantallas de
 teléfono normales el comportamiento es idéntico al anterior, porque el ancho
 disponible ya es menor al máximo.
 
+### Landscape en el detalle
+
+Cuando el ancho de pantalla supera al alto (`orientation: "default"` en
+`app.json`, sin bloqueo a portrait), la pantalla de detalle deja de apilar
+hero + contenido dentro de un único scroll y pasa a un layout lado a lado:
+el hero ocupa una franja fija a la izquierda (`DETAIL_HERO_LANDSCAPE_RATIO`,
+`shared/constants/layout.ts`) y la sheet (nombre, chips, stats, botón) scrollea
+de forma independiente a la derecha. Apilado en landscape obligaba a scrollear
+para llegar al botón "Volver" en tablets apaisadas; lado a lado, el contenido
+entra completo sin scroll en el alto disponible. El estado de carga
+(`PokemonDetailSkeleton`) sigue el mismo criterio para no pegar un salto de
+layout cuando terminan de cargar los datos. El listado no lo necesita: al ser
+una lista con scroll natural (y paginada), no tiene un "final" fijo que deba
+entrar sin scroll.
+
 ## Funcionalidades bonus implementadas
 
 ### Paginación / carga incremental

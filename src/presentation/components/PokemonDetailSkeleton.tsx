@@ -1,13 +1,74 @@
-import { Animated, StyleSheet, View } from 'react-native';
+import { Animated, StyleSheet, useWindowDimensions, View } from 'react-native';
 
 import { usePulseAnimation } from '../hooks';
-import { colors, RADIUS, SHEET_RADIUS } from '@shared/constants';
+import { colors, DETAIL_HERO_LANDSCAPE_RATIO, RADIUS, SHEET_RADIUS } from '@shared/constants';
 import { getSafeAreaInsets } from '@shared/utils';
 
 const STAT_ROW_KEYS = ['hp', 'attack', 'defense', 'special-attack', 'special-defense', 'speed'];
 
+function SkeletonFields() {
+  return (
+    <>
+      <View style={styles.idBlock} />
+      <View style={styles.nameBlock} />
+
+      <View style={styles.chipRow}>
+        <View style={styles.chipBlock} />
+        <View style={styles.chipBlock} />
+      </View>
+
+      <View style={styles.metricsRow}>
+        {['height', 'weight', 'base-experience'].map((key) => (
+          <View key={key} style={styles.metric}>
+            <View style={styles.metricLabelBlock} />
+            <View style={styles.metricValueBlock} />
+          </View>
+        ))}
+      </View>
+
+      <View style={styles.sectionTitleBlock} />
+      <View style={styles.abilitiesBlock} />
+
+      <View style={styles.sectionTitleBlock} />
+      <View style={styles.statsBlock}>
+        {STAT_ROW_KEYS.map((key) => (
+          <View key={key} style={styles.statRow}>
+            <View style={styles.statLabelBlock} />
+            <View style={styles.statTrack} />
+            <View style={styles.statValueBlock} />
+          </View>
+        ))}
+      </View>
+    </>
+  );
+}
+
 export function PokemonDetailSkeleton() {
   const opacity = usePulseAnimation();
+  const { width, height } = useWindowDimensions();
+  const isLandscape = width > height;
+
+  if (isLandscape) {
+    const heroWidth = Math.round(width * DETAIL_HERO_LANDSCAPE_RATIO);
+
+    return (
+      <Animated.View
+        style={[styles.screen, { opacity }]}
+        testID="pokemon-detail-skeleton"
+        accessibilityElementsHidden
+        importantForAccessibility="no-hide-descendants"
+      >
+        <View style={styles.landscapeRow}>
+          <View style={[styles.heroLandscape, { width: heroWidth }]} />
+          <View style={styles.sheetLandscape}>
+            <View style={styles.content}>
+              <SkeletonFields />
+            </View>
+          </View>
+        </View>
+      </Animated.View>
+    );
+  }
 
   return (
     <Animated.View
@@ -20,36 +81,7 @@ export function PokemonDetailSkeleton() {
 
       <View style={styles.sheet}>
         <View style={styles.content}>
-          <View style={styles.idBlock} />
-          <View style={styles.nameBlock} />
-
-          <View style={styles.chipRow}>
-            <View style={styles.chipBlock} />
-            <View style={styles.chipBlock} />
-          </View>
-
-          <View style={styles.metricsRow}>
-            {['height', 'weight', 'base-experience'].map((key) => (
-              <View key={key} style={styles.metric}>
-                <View style={styles.metricLabelBlock} />
-                <View style={styles.metricValueBlock} />
-              </View>
-            ))}
-          </View>
-
-          <View style={styles.sectionTitleBlock} />
-          <View style={styles.abilitiesBlock} />
-
-          <View style={styles.sectionTitleBlock} />
-          <View style={styles.statsBlock}>
-            {STAT_ROW_KEYS.map((key) => (
-              <View key={key} style={styles.statRow}>
-                <View style={styles.statLabelBlock} />
-                <View style={styles.statTrack} />
-                <View style={styles.statValueBlock} />
-              </View>
-            ))}
-          </View>
+          <SkeletonFields />
         </View>
       </View>
     </Animated.View>
@@ -71,6 +103,21 @@ const styles = StyleSheet.create({
     marginTop: -SHEET_RADIUS,
     borderTopLeftRadius: SHEET_RADIUS,
     borderTopRightRadius: SHEET_RADIUS,
+    backgroundColor: colors.nearBlack,
+    overflow: 'hidden',
+  },
+  landscapeRow: {
+    flex: 1,
+    flexDirection: 'row',
+  },
+  heroLandscape: {
+    backgroundColor: colors.skeletonBlock,
+  },
+  sheetLandscape: {
+    flex: 1,
+    marginLeft: -SHEET_RADIUS,
+    borderTopLeftRadius: SHEET_RADIUS,
+    borderBottomLeftRadius: SHEET_RADIUS,
     backgroundColor: colors.nearBlack,
     overflow: 'hidden',
   },

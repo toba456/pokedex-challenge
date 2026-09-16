@@ -7,3 +7,10 @@
 // este valor todavía centra y limita el contenido, pero deja que ocupe más
 // pantalla en tablets sin volver a estirarse por completo.
 export const MAX_CONTENT_WIDTH = 680;
+
+// Fracción del ancho que ocupa el hero (imagen) del detalle cuando la pantalla
+// está en landscape (ancho > alto, típicamente una tablet apaisada): en vez
+// de apilar hero + contenido como en portrait (lo que obliga a scrollear para
+// llegar al botón "Volver" cuando el alto disponible es chico), se muestran
+// lado a lado aprovechando el ancho sobrante.
+export const DETAIL_HERO_LANDSCAPE_RATIO = 0.4;

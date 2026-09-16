@@ -1,4 +1,5 @@
 import { fireEvent, render } from '@testing-library/react-native';
+import { useWindowDimensions } from 'react-native';
 
 import { PokemonDetail } from '@domain/entities';
 import { usePokemonDetail } from '../../hooks';
@@ -14,9 +15,15 @@ jest.mock('../../navigation', () => ({
   usePokedexNavigation: jest.fn(),
 }));
 
+jest.mock('react-native/Libraries/Utilities/useWindowDimensions');
+
 const mockedUsePokemonDetail = usePokemonDetail as jest.Mock;
 const mockedUsePokedexNavigation = usePokedexNavigation as jest.Mock;
+const mockedUseWindowDimensions = useWindowDimensions as jest.Mock;
 const goToList = jest.fn();
+
+const PORTRAIT_DIMENSIONS = { width: 390, height: 844, scale: 2, fontScale: 1 };
+const LANDSCAPE_DIMENSIONS = { width: 1280, height: 800, scale: 2, fontScale: 1 };
 
 const buildPokemonDetail = (): PokemonDetail => ({
   id: 25,
@@ -42,6 +49,7 @@ describe('PokemonDetailScreen', () => {
       goToDetail: jest.fn(),
       goToList,
     });
+    mockedUseWindowDimensions.mockReturnValue(PORTRAIT_DIMENSIONS);
   });
 
   it('muestra el skeleton de carga en estado idle', async () => {
@@ -104,6 +112,22 @@ describe('PokemonDetailScreen', () => {
     mockedUsePokemonDetail.mockReturnValue({ status: 'success', data: buildPokemonDetail() });
 
     const { getByTestId } = await render(<PokemonDetailScreen />);
+
+    await fireEvent.press(getByTestId('pokemon-detail-back-button'));
+
+    expect(goToList).toHaveBeenCalledTimes(1);
+  });
+
+  it('en landscape (ancho > alto) muestra el mismo contenido en el layout lado a lado', async () => {
+    mockedUseWindowDimensions.mockReturnValue(LANDSCAPE_DIMENSIONS);
+    mockedUsePokemonDetail.mockReturnValue({ status: 'success', data: buildPokemonDetail() });
+
+    const { getByTestId, getByText } = await render(<PokemonDetailScreen />);
+
+    expect(getByTestId('pokemon-detail-content')).toBeTruthy();
+    expect(getByText('pikachu')).toBeTruthy();
+    expect(getByText('Eléctrico')).toBeTruthy();
+    expect(getByText('112')).toBeTruthy();
 
     await fireEvent.press(getByTestId('pokemon-detail-back-button'));
 

@@ -48,6 +48,25 @@ export const styles = StyleSheet.create({
     backgroundColor: colors.nearBlack,
     overflow: 'hidden',
   },
+  landscapeRow: {
+    flex: 1,
+    flexDirection: 'row',
+  },
+  heroLandscape: {
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  sheetLandscape: {
+    flex: 1,
+    marginLeft: -SHEET_RADIUS,
+    borderTopLeftRadius: SHEET_RADIUS,
+    borderBottomLeftRadius: SHEET_RADIUS,
+    backgroundColor: colors.nearBlack,
+    overflow: 'hidden',
+  },
+  landscapeContentScroll: {
+    flex: 1,
+  },
   content: {
     alignSelf: 'center',
     padding: 20,
