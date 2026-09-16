@@ -3,8 +3,7 @@ import { PokemonListPage } from '@domain/entities/PokemonListPage';
 import { IPokemonRepository } from '@domain/repositories/IPokemonRepository';
 import { PokemonLocalDataSource } from '../datasources/local/PokemonLocalDataSource';
 import { PokemonRemoteDataSource } from '../datasources/remote/PokemonRemoteDataSource';
-import { mapPokemonDetailDTOToEntity } from '../mappers/pokemonDetailMapper';
-import { mapPokemonListResponseDTOToPage } from '../mappers/pokemonMapper';
+import { mapPokemonDetailDTOToEntity, mapPokemonListResponseDTOToPage } from '../mappers';
 
 export class PokemonRepositoryImpl implements IPokemonRepository {
   constructor(

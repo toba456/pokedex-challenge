@@ -8,6 +8,7 @@
       "@data/*": ["./src/data/*"],
       "@presentation/*": ["./src/presentation/*"],
       "@shared/*": ["./src/shared/*"],
+      "@di": ["./src/di/index"],
       "@di/*": ["./src/di/*"]
     }
   }

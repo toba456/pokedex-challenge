@@ -1,7 +1,7 @@
 import { renderHook, waitFor } from '@testing-library/react-native';
 
 import { PokemonApiError } from '@data/datasources/remote/PokemonApiError';
-import { getPokemonDetailUseCase } from '@di/container';
+import { getPokemonDetailUseCase } from '@di';
 import { PokemonDetail } from '@domain/entities';
 import { initialPokemonDetailState, usePokemonDetail } from './usePokemonDetail';
 

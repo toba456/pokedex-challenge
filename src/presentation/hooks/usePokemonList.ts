@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 
-import { getPokemonListUseCase } from '@di/container';
+import { getPokemonListUseCase } from '@di';
 import { PokemonListItem } from '@domain/entities';
 import { RequestState } from '@shared/types';
 import { getUserFriendlyErrorMessage } from '@shared/utils';
