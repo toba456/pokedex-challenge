@@ -1,5 +1,6 @@
 export * from './api';
 export * from './colors';
+export * from './layout';
 export * from './pokemonStats';
 export * from './pokemonTypeColors';
 export * from './pokemonTypeLabels';

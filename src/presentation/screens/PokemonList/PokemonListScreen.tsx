@@ -1,11 +1,11 @@
 import { memo, useCallback } from 'react';
-import { ActivityIndicator, FlatList, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, FlatList, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 
 import { Button, PokemonListItem, PokemonListItemSkeleton } from '../../components';
 import { usePokemonList } from '../../hooks';
 import { useNavigationActions } from '../../navigation';
 import { PokemonListItem as PokemonListItemEntity } from '@domain/entities';
-import { colors, HEADING_FONT_FAMILY } from '@shared/constants';
+import { colors, HEADING_FONT_FAMILY, MAX_CONTENT_WIDTH } from '@shared/constants';
 import type { RequestState } from '@shared/types';
 import { getSafeAreaInsets } from '@shared/utils';
 
@@ -139,12 +139,16 @@ function LoadMoreError({ message, onRetry }: { message: string; onRetry: () => v
 function PokemonListScreenComponent() {
   const { state, loadMore, isLoadingMore, loadMoreError } = usePokemonList();
   const { goToDetail } = useNavigationActions();
+  const { width } = useWindowDimensions();
+  const contentWidth = Math.min(width, MAX_CONTENT_WIDTH);
 
   return (
     <View style={styles.safeArea}>
-      <Text style={styles.title}>Pokédex</Text>
-      <ListContent state={state} onPress={goToDetail} onEndReached={loadMore} isLoadingMore={isLoadingMore} />
-      {loadMoreError !== null && <LoadMoreError message={loadMoreError} onRetry={loadMore} />}
+      <View style={[styles.content, { width: contentWidth }]}>
+        <Text style={styles.title}>Pokédex</Text>
+        <ListContent state={state} onPress={goToDetail} onEndReached={loadMore} isLoadingMore={isLoadingMore} />
+        {loadMoreError !== null && <LoadMoreError message={loadMoreError} onRetry={loadMore} />}
+      </View>
     </View>
   );
 }
@@ -158,6 +162,10 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: colors.nearBlack,
     paddingTop: insets.top,
+  },
+  content: {
+    flex: 1,
+    alignSelf: 'center',
   },
   title: {
     color: colors.offWhite,

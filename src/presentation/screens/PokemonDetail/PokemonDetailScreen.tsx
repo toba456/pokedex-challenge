@@ -1,9 +1,10 @@
-import { Image, ScrollView, Text, View } from 'react-native';
+import { Image, ScrollView, Text, useWindowDimensions, View } from 'react-native';
 
 import { Button, PokemonDetailSkeleton } from '../../components';
 import { PokemonDetail, PokemonStat } from '@domain/entities';
 import {
   colors,
+  MAX_CONTENT_WIDTH,
   POKEMON_STAT_LABELS,
   POKEMON_STAT_MAX_VALUE,
   POKEMON_TYPE_COLORS,
@@ -47,6 +48,8 @@ function StatBar({ stat, accentColor }: { stat: PokemonStat; accentColor: string
 function PokemonDetailView({ pokemon, onGoToList }: { pokemon: PokemonDetail; onGoToList: () => void }) {
   const accentColor = POKEMON_TYPE_COLORS[pokemon.types[0]] ?? colors.pokedexRed;
   const displayName = pokemon.name.charAt(0).toUpperCase() + pokemon.name.slice(1);
+  const { width } = useWindowDimensions();
+  const contentWidth = Math.min(width, MAX_CONTENT_WIDTH);
 
   return (
     <View style={styles.screen} testID="pokemon-detail-content">
@@ -61,7 +64,7 @@ function PokemonDetailView({ pokemon, onGoToList }: { pokemon: PokemonDetail; on
         </View>
 
         <View style={styles.sheet}>
-          <View style={styles.content}>
+          <View style={[styles.content, { width: contentWidth }]}>
             <Text style={styles.id}>#{String(pokemon.id).padStart(3, '0')}</Text>
             <Text style={styles.name}>{pokemon.name}</Text>
 

@@ -110,6 +110,19 @@ La app maneja explícitamente los estados de carga, error y vacío tanto en el
 listado como en el detalle, mediante un tipo `RequestState<T>` compartido
 (ver `shared/types`).
 
+## Diseño responsive
+
+El contenido de ambas pantallas se limita a un ancho máximo de lectura
+(`MAX_CONTENT_WIDTH`, `shared/constants/layout.ts`) y se centra cuando la
+pantalla es más ancha que eso, calculado con `useWindowDimensions()`
+(reacciona a rotación/resize, a diferencia del `Dimensions` estático). En el
+listado, el heading y el `FlatList` respetan ese ancho; en el detalle, el
+hero (imagen + fondo de color) sigue full-bleed, pero el contenido de la
+sheet (nombre, chips, métricas, stats) se limita al mismo ancho, evitando
+barras de stats desproporcionadamente largas en tablets. En pantallas de
+teléfono normales el comportamiento es idéntico al anterior, porque el ancho
+disponible ya es menor al máximo.
+
 ## Funcionalidades bonus implementadas
 
 ### Paginación / carga incremental

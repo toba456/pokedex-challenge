@@ -49,6 +49,7 @@ export const styles = StyleSheet.create({
     overflow: 'hidden',
   },
   content: {
+    alignSelf: 'center',
     padding: 20,
     paddingTop: 28,
     paddingBottom: 20 + insets.bottom,
