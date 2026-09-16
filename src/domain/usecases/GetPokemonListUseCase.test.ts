@@ -1,4 +1,4 @@
-import { PokemonListItem } from '../entities/PokemonListItem';
+import { PokemonListPage } from '../entities/PokemonListPage';
 import { IPokemonRepository } from '../repositories/IPokemonRepository';
 import { GetPokemonListUseCase } from './GetPokemonListUseCase';
 
@@ -8,18 +8,21 @@ const buildRepositoryMock = (): jest.Mocked<IPokemonRepository> => ({
 });
 
 describe('GetPokemonListUseCase', () => {
-  it('devuelve la lista de pokemon que provee el repositorio', async () => {
-    const pokemonList: PokemonListItem[] = [
-      { id: 1, name: 'bulbasaur', imageUrl: 'https://example.com/1.png' },
-      { id: 2, name: 'ivysaur', imageUrl: 'https://example.com/2.png' },
-    ];
+  it('devuelve la página de pokemon que provee el repositorio', async () => {
+    const page: PokemonListPage = {
+      items: [
+        { id: 1, name: 'bulbasaur', imageUrl: 'https://example.com/1.png' },
+        { id: 2, name: 'ivysaur', imageUrl: 'https://example.com/2.png' },
+      ],
+      hasMore: true,
+    };
     const repository = buildRepositoryMock();
-    repository.getPokemonList.mockResolvedValue(pokemonList);
+    repository.getPokemonList.mockResolvedValue(page);
     const useCase = new GetPokemonListUseCase(repository);
 
     const result = await useCase.execute();
 
-    expect(result).toEqual(pokemonList);
+    expect(result).toEqual(page);
     expect(repository.getPokemonList).toHaveBeenCalledWith(20, 0);
   });
 
@@ -31,19 +34,20 @@ describe('GetPokemonListUseCase', () => {
     await expect(useCase.execute()).rejects.toThrow('network error');
   });
 
-  it('devuelve una lista vacía sin lanzar error cuando no hay pokemon', async () => {
+  it('devuelve una página vacía con hasMore false sin lanzar error cuando no hay pokemon', async () => {
+    const emptyPage: PokemonListPage = { items: [], hasMore: false };
     const repository = buildRepositoryMock();
-    repository.getPokemonList.mockResolvedValue([]);
+    repository.getPokemonList.mockResolvedValue(emptyPage);
     const useCase = new GetPokemonListUseCase(repository);
 
     const result = await useCase.execute();
 
-    expect(result).toEqual([]);
+    expect(result).toEqual(emptyPage);
   });
 
   it('respeta limit y offset explícitos', async () => {
     const repository = buildRepositoryMock();
-    repository.getPokemonList.mockResolvedValue([]);
+    repository.getPokemonList.mockResolvedValue({ items: [], hasMore: false });
     const useCase = new GetPokemonListUseCase(repository);
 
     await useCase.execute(10, 20);

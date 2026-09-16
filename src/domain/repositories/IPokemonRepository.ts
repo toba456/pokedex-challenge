@@ -1,7 +1,7 @@
 import { PokemonDetail } from '../entities/PokemonDetail';
-import { PokemonListItem } from '../entities/PokemonListItem';
+import { PokemonListPage } from '../entities/PokemonListPage';
 
 export interface IPokemonRepository {
-  getPokemonList(limit: number, offset: number): Promise<PokemonListItem[]>;
+  getPokemonList(limit: number, offset: number): Promise<PokemonListPage>;
   getPokemonDetail(id: number): Promise<PokemonDetail>;
 }
