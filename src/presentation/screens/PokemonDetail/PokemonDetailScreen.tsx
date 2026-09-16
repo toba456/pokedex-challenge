@@ -8,6 +8,7 @@ import {
   POKEMON_STAT_LABELS,
   POKEMON_STAT_MAX_VALUE,
   POKEMON_TYPE_COLORS,
+  POKEMON_TYPE_LABELS,
 } from '../../../shared/constants';
 import { usePokemonDetail } from '../../hooks';
 import { usePokedexNavigation } from '../../navigation';
@@ -50,7 +51,7 @@ function PokemonDetailView({ pokemon, onGoToList }: { pokemon: PokemonDetail; on
         <View style={styles.chipRow}>
           {pokemon.types.map((type) => (
             <View key={type} style={[styles.chip, { backgroundColor: POKEMON_TYPE_COLORS[type] }]}>
-              <Text style={styles.chipText}>{type}</Text>
+              <Text style={styles.chipText}>{POKEMON_TYPE_LABELS[type]}</Text>
             </View>
           ))}
         </View>
@@ -73,7 +74,7 @@ function PokemonDetailView({ pokemon, onGoToList }: { pokemon: PokemonDetail; on
         <Text style={styles.sectionTitle}>Habilidades</Text>
         <Text style={styles.abilities}>{pokemon.abilities.join(', ')}</Text>
 
-        <Text style={styles.sectionTitle}>Stats</Text>
+        <Text style={styles.sectionTitle}>Estadísticas</Text>
         <View style={styles.statsBlock}>
           {pokemon.stats.map((stat) => (
             <StatBar key={stat.name} stat={stat} accentColor={accentColor} />

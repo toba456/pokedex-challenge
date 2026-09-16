@@ -90,7 +90,7 @@ describe('PokemonDetailScreen', () => {
     expect(getByTestId('pokemon-detail-content')).toBeTruthy();
     expect(getByText('pikachu')).toBeTruthy();
     expect(getByText('#025')).toBeTruthy();
-    expect(getByText('electric')).toBeTruthy();
+    expect(getByText('Eléctrico')).toBeTruthy();
     expect(getByText('static, lightning-rod')).toBeTruthy();
     expect(getByText('0.4 m')).toBeTruthy();
     expect(getByText('6.0 kg')).toBeTruthy();
