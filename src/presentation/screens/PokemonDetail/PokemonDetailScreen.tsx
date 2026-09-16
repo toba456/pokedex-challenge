@@ -177,12 +177,21 @@ function PokemonDetailContent({ id }: { id: number }) {
   return <PokemonDetailView pokemon={state.data} />;
 }
 
-export function PokemonDetailScreen() {
+type PokemonDetailScreenProps = {
+  // Le permite al contenedor de navegación (App.tsx) interceptar el botón de
+  // volver para correr la animación de salida antes de desmontar la pantalla.
+  // Sin wrapper (ej. en tests unitarios de esta pantalla) cae directo a
+  // goToList, sin delay.
+  onRequestBack?: () => void;
+};
+
+export function PokemonDetailScreen({ onRequestBack }: PokemonDetailScreenProps) {
   const { selectedPokemonId, goToList } = usePokedexNavigation();
+  const handleBack = onRequestBack ?? goToList;
 
   return (
     <View style={styles.screenContainer}>
-      <FloatingBackButton onPress={goToList} />
+      <FloatingBackButton onPress={handleBack} />
       {selectedPokemonId === null ? (
         <View style={styles.centeredSafe} testID="pokemon-detail-error">
           <Text style={styles.message}>No se seleccionó ningún pokémon.</Text>

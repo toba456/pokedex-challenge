@@ -1,4 +1,4 @@
-import { fireEvent, render } from '@testing-library/react-native';
+import { fireEvent, render, waitFor } from '@testing-library/react-native';
 
 import App from './App';
 import { PokemonDetailDTO } from './src/data/datasources/remote/PokemonDetailDTO';
@@ -107,7 +107,11 @@ describe('App (flujo listado -> detalle -> volver)', () => {
 
     await fireEvent.press(await findByTestId('pokemon-detail-back-button'));
 
+    // El botón de volver dispara primero la animación de salida (translateX +
+    // opacity) y recién al terminar desmonta el detalle, así que la
+    // desaparición no es inmediata: hay que esperarla en vez de asertarla
+    // sincrónicamente.
     expect(await findByTestId('pokemon-list')).toBeTruthy();
-    expect(queryByTestId('pokemon-detail-content')).toBeNull();
+    await waitFor(() => expect(queryByTestId('pokemon-detail-content')).toBeNull());
   });
 });
