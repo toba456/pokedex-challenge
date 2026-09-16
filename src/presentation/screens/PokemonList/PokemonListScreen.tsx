@@ -1,7 +1,7 @@
 import { memo, useCallback } from 'react';
-import { ActivityIndicator, FlatList, Pressable, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, FlatList, StyleSheet, Text, View } from 'react-native';
 
-import { PokemonListItem, PokemonListItemSkeleton } from '../../components';
+import { Button, PokemonListItem, PokemonListItemSkeleton } from '../../components';
 import { usePokemonList } from '../../hooks';
 import { useNavigationActions } from '../../navigation';
 import { PokemonListItem as PokemonListItemEntity } from '../../../domain/entities';
@@ -125,15 +125,13 @@ function LoadMoreError({ message, onRetry }: { message: string; onRetry: () => v
   return (
     <View style={styles.loadMoreErrorRow} testID="pokemon-list-load-more-error">
       <Text style={styles.loadMoreErrorText}>{message}</Text>
-      <Pressable
+      <Button
+        variant="text"
+        label="Reintentar"
         onPress={onRetry}
         testID="pokemon-list-load-more-retry"
-        hitSlop={8}
-        accessibilityRole="button"
         accessibilityLabel="Reintentar carga de más pokémon"
-      >
-        <Text style={styles.loadMoreErrorRetry}>Reintentar</Text>
-      </Pressable>
+      />
     </View>
   );
 }
@@ -205,15 +203,5 @@ const styles = StyleSheet.create({
     color: colors.offWhiteMuted,
     fontFamily: HEADING_FONT_FAMILY,
     fontSize: 13,
-  },
-  loadMoreErrorRetry: {
-    // Blanco puro en vez de pokedexRed como color de texto: a 13px ni con
-    // fontWeight 600 llega al umbral de "texto grande" (mínimo 14px con negrita),
-    // y pokedexRed sobre nearBlack da 3.54:1, por debajo del 4.5:1 requerido.
-    // Se evita oscurecer pokedexRed porque es el color de marca, usado en más lugares.
-    color: colors.white,
-    fontFamily: HEADING_FONT_FAMILY,
-    fontSize: 13,
-    fontWeight: '600',
   },
 });

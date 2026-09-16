@@ -1,6 +1,6 @@
-import { Image, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Image, ScrollView, StyleSheet, Text, View } from 'react-native';
 
-import { PokemonDetailSkeleton } from '../../components';
+import { Button, PokemonDetailSkeleton } from '../../components';
 import { PokemonDetail, PokemonStat } from '../../../domain/entities';
 import {
   colors,
@@ -19,16 +19,13 @@ import { usePokedexNavigation } from '../../navigation';
 
 function BackButton({ onPress }: { onPress: () => void }) {
   return (
-    <Pressable
-      style={styles.button}
+    <Button
+      variant="primary"
+      label="Volver"
       onPress={onPress}
       testID="pokemon-detail-back-button"
-      accessibilityRole="button"
       accessibilityLabel="Volver al listado"
-      hitSlop={8}
-    >
-      <Text style={styles.buttonText}>Volver</Text>
-    </Pressable>
+    />
   );
 }
 
@@ -289,20 +286,5 @@ const styles = StyleSheet.create({
     fontSize: 12,
     width: 30,
     textAlign: 'right',
-  },
-  button: {
-    backgroundColor: colors.pokedexRed,
-    paddingHorizontal: 24,
-    paddingVertical: 12,
-    borderRadius: RADIUS,
-    alignSelf: 'flex-start',
-    marginTop: 28,
-  },
-  buttonText: {
-    // Blanco puro en vez de offWhite: a 16px regular sobre pokedexRed, offWhite
-    // (#EDEAE2) da 4.25:1, por debajo del 4.5:1 requerido para texto normal.
-    color: colors.white,
-    fontFamily: HEADING_FONT_FAMILY,
-    fontSize: 16,
   },
 });
