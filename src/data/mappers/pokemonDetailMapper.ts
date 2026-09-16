@@ -1,6 +1,6 @@
-import { PokemonDetail, PokemonStat } from '../../domain/entities';
-import { POKEAPI_OFFICIAL_ARTWORK_BASE_URL } from '../../shared/constants';
-import { PokemonStatName, PokemonType } from '../../shared/types';
+import { PokemonDetail, PokemonStat } from '@domain/entities';
+import { POKEAPI_OFFICIAL_ARTWORK_BASE_URL } from '@shared/constants';
+import { PokemonStatName, PokemonType } from '@shared/types';
 import { PokemonDetailDTO, PokemonStatSlotDTO } from '../datasources/remote/PokemonDetailDTO';
 
 const DECIMETRES_PER_METRE = 10;

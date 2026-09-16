@@ -1,4 +1,4 @@
-import { PokemonListItem } from '../../domain/entities/PokemonListItem';
+import { PokemonListItem } from '@domain/entities/PokemonListItem';
 import { PokemonLocalDataSource } from '../datasources/local/PokemonLocalDataSource';
 import { PokemonApiError } from '../datasources/remote/PokemonApiError';
 import { PokemonDetailDTO } from '../datasources/remote/PokemonDetailDTO';

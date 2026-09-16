@@ -1,6 +1,6 @@
-import { POKEAPI_OFFICIAL_ARTWORK_BASE_URL } from '../../shared/constants';
-import { PokemonListItem } from '../../domain/entities/PokemonListItem';
-import { PokemonListPage } from '../../domain/entities/PokemonListPage';
+import { POKEAPI_OFFICIAL_ARTWORK_BASE_URL } from '@shared/constants';
+import { PokemonListItem } from '@domain/entities/PokemonListItem';
+import { PokemonListPage } from '@domain/entities/PokemonListPage';
 import { PokemonListItemDTO, PokemonListResponseDTO } from '../datasources/remote/PokemonListDTO';
 
 function extractIdFromUrl(url: string): number {

@@ -1,4 +1,4 @@
-import { PokemonType } from '../../shared/types';
+import { PokemonType } from '@shared/types';
 import { PokemonStat } from './PokemonStat';
 
 export interface PokemonDetail {

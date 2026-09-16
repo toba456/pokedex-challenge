@@ -1,14 +1,14 @@
 import { Image, ScrollView, Text, View } from 'react-native';
 
 import { Button, PokemonDetailSkeleton } from '../../components';
-import { PokemonDetail, PokemonStat } from '../../../domain/entities';
+import { PokemonDetail, PokemonStat } from '@domain/entities';
 import {
   colors,
   POKEMON_STAT_LABELS,
   POKEMON_STAT_MAX_VALUE,
   POKEMON_TYPE_COLORS,
   POKEMON_TYPE_LABELS,
-} from '../../../shared/constants';
+} from '@shared/constants';
 import { usePokemonDetail } from '../../hooks';
 import { usePokedexNavigation } from '../../navigation';
 import { styles } from './PokemonDetailScreen.styles';

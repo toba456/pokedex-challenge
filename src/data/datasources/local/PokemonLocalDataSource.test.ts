@@ -1,7 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-import { POKEMON_LIST_STORAGE_KEY } from '../../../shared/constants';
-import { PokemonListItem } from '../../../domain/entities/PokemonListItem';
+import { POKEMON_LIST_STORAGE_KEY } from '@shared/constants';
+import { PokemonListItem } from '@domain/entities/PokemonListItem';
 import { PokemonLocalDataSource } from './PokemonLocalDataSource';
 
 jest.mock('@react-native-async-storage/async-storage', () => ({

@@ -1,6 +1,6 @@
 import { Pressable, StyleSheet, Text } from 'react-native';
 
-import { colors, HEADING_FONT_FAMILY, RADIUS } from '../../shared/constants';
+import { colors, HEADING_FONT_FAMILY, RADIUS } from '@shared/constants';
 
 type ButtonVariant = 'primary' | 'text';
 

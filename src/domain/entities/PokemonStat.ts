@@ -1,4 +1,4 @@
-import { PokemonStatName } from '../../shared/types';
+import { PokemonStatName } from '@shared/types';
 
 export interface PokemonStat {
   name: PokemonStatName;

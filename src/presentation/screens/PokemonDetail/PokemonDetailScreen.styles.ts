@@ -6,8 +6,8 @@ import {
   MONOSPACE_FONT_FAMILY,
   RADIUS,
   SHEET_RADIUS,
-} from '../../../shared/constants';
-import { getSafeAreaInsets } from '../../../shared/utils';
+} from '@shared/constants';
+import { getSafeAreaInsets } from '@shared/utils';
 
 const insets = getSafeAreaInsets();
 

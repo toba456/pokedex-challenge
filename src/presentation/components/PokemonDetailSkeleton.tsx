@@ -1,8 +1,8 @@
 import { Animated, StyleSheet, View } from 'react-native';
 
 import { usePulseAnimation } from '../hooks';
-import { colors, RADIUS, SHEET_RADIUS } from '../../shared/constants';
-import { getSafeAreaInsets } from '../../shared/utils';
+import { colors, RADIUS, SHEET_RADIUS } from '@shared/constants';
+import { getSafeAreaInsets } from '@shared/utils';
 
 const STAT_ROW_KEYS = ['hp', 'attack', 'defense', 'special-attack', 'special-defense', 'speed'];
 

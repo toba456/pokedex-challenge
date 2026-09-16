@@ -1,7 +1,7 @@
-import { PokemonLocalDataSource } from '../data/datasources/local';
-import { PokemonRemoteDataSource } from '../data/datasources/remote';
-import { PokemonRepositoryImpl } from '../data/repositories';
-import { GetPokemonDetailUseCase, GetPokemonListUseCase } from '../domain/usecases';
+import { PokemonLocalDataSource } from '@data/datasources/local';
+import { PokemonRemoteDataSource } from '@data/datasources/remote';
+import { PokemonRepositoryImpl } from '@data/repositories';
+import { GetPokemonDetailUseCase, GetPokemonListUseCase } from '@domain/usecases';
 
 // Composition root: único lugar del proyecto donde se instancian clases de
 // `data` directamente. Todo lo demás consume estas

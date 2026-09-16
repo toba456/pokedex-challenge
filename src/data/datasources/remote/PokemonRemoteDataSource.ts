@@ -1,4 +1,4 @@
-import { POKEAPI_BASE_URL } from '../../../shared/constants';
+import { POKEAPI_BASE_URL } from '@shared/constants';
 import { PokemonApiError } from './PokemonApiError';
 import { PokemonDetailDTO } from './PokemonDetailDTO';
 import { PokemonListResponseDTO } from './PokemonListDTO';

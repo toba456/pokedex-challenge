@@ -1,7 +1,7 @@
 import { Animated, StyleSheet, View } from 'react-native';
 
 import { usePulseAnimation } from '../hooks';
-import { colors, RADIUS } from '../../shared/constants';
+import { colors, RADIUS } from '@shared/constants';
 
 export function PokemonListItemSkeleton() {
   const opacity = usePulseAnimation();

@@ -1,4 +1,4 @@
-import { PokemonApiError } from '../../data/datasources/remote/PokemonApiError';
+import { PokemonApiError } from '@data/datasources/remote/PokemonApiError';
 
 const GENERIC_ERROR_MESSAGE = 'Ocurrió un error inesperado. Intentá de nuevo.';
 

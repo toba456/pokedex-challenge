@@ -1,6 +1,6 @@
 import { fireEvent, render } from '@testing-library/react-native';
 
-import { PokemonListItem } from '../../../domain/entities';
+import { PokemonListItem } from '@domain/entities';
 import { usePokemonList } from '../../hooks';
 import { useNavigationActions } from '../../navigation';
 import { PokemonListScreen } from './PokemonListScreen';

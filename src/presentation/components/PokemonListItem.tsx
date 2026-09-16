@@ -1,8 +1,8 @@
 import { memo } from 'react';
 import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
 
-import { PokemonListItem as PokemonListItemEntity } from '../../domain/entities';
-import { colors, HEADING_FONT_FAMILY, MONOSPACE_FONT_FAMILY, RADIUS } from '../../shared/constants';
+import { PokemonListItem as PokemonListItemEntity } from '@domain/entities';
+import { colors, HEADING_FONT_FAMILY, MONOSPACE_FONT_FAMILY, RADIUS } from '@shared/constants';
 
 interface PokemonListItemProps {
   pokemon: PokemonListItemEntity;

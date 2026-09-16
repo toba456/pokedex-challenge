@@ -1,4 +1,4 @@
-import { PokemonApiError } from '../../data/datasources/remote/PokemonApiError';
+import { PokemonApiError } from '@data/datasources/remote/PokemonApiError';
 import { getUserFriendlyErrorMessage } from './getUserFriendlyErrorMessage';
 
 describe('getUserFriendlyErrorMessage', () => {

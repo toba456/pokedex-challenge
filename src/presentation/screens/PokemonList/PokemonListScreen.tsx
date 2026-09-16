@@ -4,10 +4,10 @@ import { ActivityIndicator, FlatList, StyleSheet, Text, View } from 'react-nativ
 import { Button, PokemonListItem, PokemonListItemSkeleton } from '../../components';
 import { usePokemonList } from '../../hooks';
 import { useNavigationActions } from '../../navigation';
-import { PokemonListItem as PokemonListItemEntity } from '../../../domain/entities';
-import { colors, HEADING_FONT_FAMILY } from '../../../shared/constants';
-import type { RequestState } from '../../../shared/types';
-import { getSafeAreaInsets } from '../../../shared/utils';
+import { PokemonListItem as PokemonListItemEntity } from '@domain/entities';
+import { colors, HEADING_FONT_FAMILY } from '@shared/constants';
+import type { RequestState } from '@shared/types';
+import { getSafeAreaInsets } from '@shared/utils';
 
 const SKELETON_ITEM_COUNT = 7;
 const SKELETON_ITEM_KEYS = Array.from({ length: SKELETON_ITEM_COUNT }, (_, index) => index);

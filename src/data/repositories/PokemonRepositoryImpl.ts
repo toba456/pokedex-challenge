@@ -1,6 +1,6 @@
-import { PokemonDetail } from '../../domain/entities/PokemonDetail';
-import { PokemonListPage } from '../../domain/entities/PokemonListPage';
-import { IPokemonRepository } from '../../domain/repositories/IPokemonRepository';
+import { PokemonDetail } from '@domain/entities/PokemonDetail';
+import { PokemonListPage } from '@domain/entities/PokemonListPage';
+import { IPokemonRepository } from '@domain/repositories/IPokemonRepository';
 import { PokemonLocalDataSource } from '../datasources/local/PokemonLocalDataSource';
 import { PokemonRemoteDataSource } from '../datasources/remote/PokemonRemoteDataSource';
 import { mapPokemonDetailDTOToEntity } from '../mappers/pokemonDetailMapper';

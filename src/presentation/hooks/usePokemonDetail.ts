@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react';
 
-import { getPokemonDetailUseCase } from '../../di/container';
-import { PokemonDetail } from '../../domain/entities';
-import { RequestState } from '../../shared/types';
-import { getUserFriendlyErrorMessage } from '../../shared/utils';
+import { getPokemonDetailUseCase } from '@di/container';
+import { PokemonDetail } from '@domain/entities';
+import { RequestState } from '@shared/types';
+import { getUserFriendlyErrorMessage } from '@shared/utils';
 
 // Mismo criterio que usePokemonList (ver comentario ahí): 'loading' es el
 // estado inicial declarado, nunca se setea sincrónicamente al montar.
