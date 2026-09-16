@@ -1,9 +1,9 @@
-import { useCallback } from 'react';
+import { memo, useCallback } from 'react';
 import { ActivityIndicator, FlatList, Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { PokemonListItem, PokemonListItemSkeleton } from '../../components';
 import { usePokemonList } from '../../hooks';
-import { usePokedexNavigation } from '../../navigation';
+import { useNavigationActions } from '../../navigation';
 import { PokemonListItem as PokemonListItemEntity } from '../../../domain/entities';
 import { colors, HEADING_FONT_FAMILY } from '../../../shared/constants';
 import type { RequestState } from '../../../shared/types';
@@ -138,9 +138,9 @@ function LoadMoreError({ message, onRetry }: { message: string; onRetry: () => v
   );
 }
 
-export function PokemonListScreen() {
+function PokemonListScreenComponent() {
   const { state, loadMore, isLoadingMore, loadMoreError } = usePokemonList();
-  const { goToDetail } = usePokedexNavigation();
+  const { goToDetail } = useNavigationActions();
 
   return (
     <View style={styles.safeArea}>
@@ -150,6 +150,8 @@ export function PokemonListScreen() {
     </View>
   );
 }
+
+export const PokemonListScreen = memo(PokemonListScreenComponent);
 
 const insets = getSafeAreaInsets();
 

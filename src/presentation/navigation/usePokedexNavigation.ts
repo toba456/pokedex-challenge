@@ -1,26 +1,14 @@
-import { useCallback, useContext } from 'react';
+import { useNavigationActions } from './useNavigationActions';
+import { useNavigationState } from './useNavigationState';
 
-import { PokedexNavigationContext } from './PokedexNavigationContext';
-
+// Combina ambos contextos para consumidores que necesitan estado y acciones
+// a la vez (ej. PokemonDetailScreen, que lee selectedPokemonId y llama a
+// goToList). Un componente que solo necesite acciones debería usar
+// useNavigationActions directamente para no re-renderizarse en cada cambio
+// de navegación: ver PokemonListScreen.
 export function usePokedexNavigation() {
-  const context = useContext(PokedexNavigationContext);
+  const { screen, selectedPokemonId } = useNavigationState();
+  const { goToDetail, goToList } = useNavigationActions();
 
-  if (!context) {
-    throw new Error('usePokedexNavigation debe usarse dentro de un PokedexNavigationProvider');
-  }
-
-  const { state, dispatch } = context;
-
-  // dispatch es estable entre renders (garantía de useReducer), así que estos
-  // callbacks también lo son: goToDetail llega sin cambiar de referencia a
-  // PokemonListItem, condición necesaria para que su React.memo tenga efecto.
-  const goToDetail = useCallback((id: number) => dispatch({ type: 'GO_TO_DETAIL', payload: { id } }), [dispatch]);
-  const goToList = useCallback(() => dispatch({ type: 'GO_TO_LIST' }), [dispatch]);
-
-  return {
-    screen: state.screen,
-    selectedPokemonId: state.selectedPokemonId,
-    goToDetail,
-    goToList,
-  };
+  return { screen, selectedPokemonId, goToDetail, goToList };
 }

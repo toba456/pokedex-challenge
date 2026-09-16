@@ -1,13 +1,13 @@
 import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, View } from 'react-native';
 
-import { PokedexNavigationProvider, usePokedexNavigation } from './src/presentation/navigation';
+import { PokedexNavigationProvider, useNavigationState } from './src/presentation/navigation';
 import { PokemonDetailScreen } from './src/presentation/screens/PokemonDetail';
 import { PokemonListScreen } from './src/presentation/screens/PokemonList';
 import { colors } from './src/shared/constants';
 
 function RootNavigator() {
-  const { screen } = usePokedexNavigation();
+  const { screen } = useNavigationState();
 
   return (
     <View style={styles.container}>

@@ -2,7 +2,7 @@ import { fireEvent, render } from '@testing-library/react-native';
 
 import { PokemonListItem } from '../../../domain/entities';
 import { usePokemonList } from '../../hooks';
-import { usePokedexNavigation } from '../../navigation';
+import { useNavigationActions } from '../../navigation';
 import { PokemonListScreen } from './PokemonListScreen';
 
 jest.mock('../../hooks', () => ({
@@ -11,19 +11,17 @@ jest.mock('../../hooks', () => ({
 }));
 
 jest.mock('../../navigation', () => ({
-  usePokedexNavigation: jest.fn(),
+  useNavigationActions: jest.fn(),
 }));
 
 const mockedUsePokemonList = usePokemonList as jest.Mock;
-const mockedUsePokedexNavigation = usePokedexNavigation as jest.Mock;
+const mockedUseNavigationActions = useNavigationActions as jest.Mock;
 const goToDetail = jest.fn();
 
 describe('PokemonListScreen', () => {
   beforeEach(() => {
     goToDetail.mockReset();
-    mockedUsePokedexNavigation.mockReturnValue({
-      screen: 'list',
-      selectedPokemonId: null,
+    mockedUseNavigationActions.mockReturnValue({
       goToDetail,
       goToList: jest.fn(),
     });
