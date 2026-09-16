@@ -7,4 +7,7 @@ export const colors = {
   offWhite: '#EDEAE2',
   offWhiteMuted: '#8F8B82',
   pokedexRed: '#D5242A',
+  // Track de las barras de stats en el detalle (sección 9): un gris-azulado
+  // apenas por encima del near-black, no un gris neutro genérico.
+  statTrack: '#2A2B33',
 } as const;

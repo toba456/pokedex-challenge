@@ -1,42 +1,258 @@
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, Image, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
+import { PokemonDetail, PokemonStat } from '../../../domain/entities';
+import {
+  colors,
+  HEADING_FONT_FAMILY,
+  MONOSPACE_FONT_FAMILY,
+  POKEMON_STAT_LABELS,
+  POKEMON_STAT_MAX_VALUE,
+  POKEMON_TYPE_COLORS,
+} from '../../../shared/constants';
+import { usePokemonDetail } from '../../hooks';
 import { usePokedexNavigation } from '../../navigation';
-import { colors, HEADING_FONT_FAMILY, MONOSPACE_FONT_FAMILY } from '../../../shared/constants';
 
-// Placeholder mínimo para poder probar el flujo de navegación completo. El
-// contenido real (tipos, habilidades, stats, peso, altura) se agrega en el
-// próximo bloque de trabajo.
+function BackButton({ onPress }: { onPress: () => void }) {
+  return (
+    <Pressable style={styles.button} onPress={onPress} testID="pokemon-detail-back-button">
+      <Text style={styles.buttonText}>Volver</Text>
+    </Pressable>
+  );
+}
+
+function StatBar({ stat, accentColor }: { stat: PokemonStat; accentColor: string }) {
+  const widthPercent = (stat.baseValue / POKEMON_STAT_MAX_VALUE) * 100;
+
+  return (
+    <View style={styles.statRow}>
+      <Text style={styles.statLabel}>{POKEMON_STAT_LABELS[stat.name]}</Text>
+      <View style={styles.statTrack}>
+        <View style={[styles.statFill, { width: `${widthPercent}%`, backgroundColor: accentColor }]} />
+      </View>
+      <Text style={styles.statValue}>{String(stat.baseValue).padStart(3, '0')}</Text>
+    </View>
+  );
+}
+
+function PokemonDetailView({ pokemon, onGoToList }: { pokemon: PokemonDetail; onGoToList: () => void }) {
+  const accentColor = POKEMON_TYPE_COLORS[pokemon.types[0]] ?? colors.pokedexRed;
+
+  return (
+    <ScrollView style={styles.container} testID="pokemon-detail-content">
+      <View style={[styles.hero, { backgroundColor: accentColor }]}>
+        <Image source={{ uri: pokemon.imageUrl }} style={styles.heroImage} resizeMode="contain" />
+      </View>
+
+      <View style={styles.content}>
+        <Text style={styles.id}>#{String(pokemon.id).padStart(3, '0')}</Text>
+        <Text style={styles.name}>{pokemon.name}</Text>
+
+        <View style={styles.chipRow}>
+          {pokemon.types.map((type) => (
+            <View key={type} style={[styles.chip, { backgroundColor: POKEMON_TYPE_COLORS[type] }]}>
+              <Text style={styles.chipText}>{type}</Text>
+            </View>
+          ))}
+        </View>
+
+        <View style={styles.metricsRow}>
+          <View style={styles.metric}>
+            <Text style={styles.metricLabel}>Altura</Text>
+            <Text style={styles.metricValue}>{pokemon.height.toFixed(1)} m</Text>
+          </View>
+          <View style={styles.metric}>
+            <Text style={styles.metricLabel}>Peso</Text>
+            <Text style={styles.metricValue}>{pokemon.weight.toFixed(1)} kg</Text>
+          </View>
+          <View style={styles.metric}>
+            <Text style={styles.metricLabel}>Exp. base</Text>
+            <Text style={styles.metricValue}>{pokemon.baseExperience ?? '—'}</Text>
+          </View>
+        </View>
+
+        <Text style={styles.sectionTitle}>Habilidades</Text>
+        <Text style={styles.abilities}>{pokemon.abilities.join(', ')}</Text>
+
+        <Text style={styles.sectionTitle}>Stats</Text>
+        <View style={styles.statsBlock}>
+          {pokemon.stats.map((stat) => (
+            <StatBar key={stat.name} stat={stat} accentColor={accentColor} />
+          ))}
+        </View>
+
+        <BackButton onPress={onGoToList} />
+      </View>
+    </ScrollView>
+  );
+}
+
+function PokemonDetailContent({ id, onGoToList }: { id: number; onGoToList: () => void }) {
+  const state = usePokemonDetail(id);
+
+  if (state.status === 'idle' || state.status === 'loading') {
+    return (
+      <View style={styles.centered} testID="pokemon-detail-loading">
+        <ActivityIndicator color={colors.pokedexRed} size="large" />
+      </View>
+    );
+  }
+
+  if (state.status === 'error' || !state.data) {
+    return (
+      <View style={styles.centered} testID="pokemon-detail-error">
+        <Text style={styles.message}>{state.error ?? 'Ocurrió un error inesperado.'}</Text>
+        <BackButton onPress={onGoToList} />
+      </View>
+    );
+  }
+
+  return <PokemonDetailView pokemon={state.data} onGoToList={onGoToList} />;
+}
+
 export function PokemonDetailScreen() {
   const { selectedPokemonId, goToList } = usePokedexNavigation();
 
-  return (
-    <View style={styles.container}>
-      <Text style={styles.idText}>Pokémon #{selectedPokemonId ?? '—'}</Text>
-      <Pressable style={styles.button} onPress={goToList} testID="pokemon-detail-back-button">
-        <Text style={styles.buttonText}>Volver</Text>
-      </Pressable>
-    </View>
-  );
+  if (selectedPokemonId === null) {
+    return (
+      <View style={styles.centered} testID="pokemon-detail-error">
+        <Text style={styles.message}>No se seleccionó ningún pokémon.</Text>
+        <BackButton onPress={goToList} />
+      </View>
+    );
+  }
+
+  return <PokemonDetailContent id={selectedPokemonId} onGoToList={goToList} />;
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: colors.nearBlack,
+  },
+  centered: {
+    flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: colors.nearBlack,
+    padding: 24,
     gap: 24,
   },
-  idText: {
+  message: {
+    color: colors.offWhite,
+    fontFamily: HEADING_FONT_FAMILY,
+    fontSize: 16,
+    textAlign: 'center',
+  },
+  hero: {
+    height: 220,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  heroImage: {
+    width: 200,
+    height: 200,
+  },
+  content: {
+    padding: 20,
+    gap: 4,
+  },
+  id: {
+    color: colors.offWhiteMuted,
+    fontFamily: MONOSPACE_FONT_FAMILY,
+    fontSize: 14,
+  },
+  name: {
+    color: colors.offWhite,
+    fontFamily: HEADING_FONT_FAMILY,
+    fontSize: 28,
+    textTransform: 'capitalize',
+  },
+  chipRow: {
+    flexDirection: 'row',
+    gap: 8,
+    marginTop: 12,
+  },
+  chip: {
+    paddingHorizontal: 12,
+    paddingVertical: 4,
+    borderRadius: 4,
+  },
+  chipText: {
+    color: colors.nearBlack,
+    fontFamily: HEADING_FONT_FAMILY,
+    fontSize: 13,
+    textTransform: 'capitalize',
+  },
+  metricsRow: {
+    flexDirection: 'row',
+    marginTop: 24,
+    gap: 24,
+  },
+  metric: {
+    gap: 2,
+  },
+  metricLabel: {
+    color: colors.offWhiteMuted,
+    fontFamily: HEADING_FONT_FAMILY,
+    fontSize: 12,
+  },
+  metricValue: {
     color: colors.offWhite,
     fontFamily: MONOSPACE_FONT_FAMILY,
-    fontSize: 20,
+    fontSize: 16,
+  },
+  sectionTitle: {
+    color: colors.offWhite,
+    fontFamily: HEADING_FONT_FAMILY,
+    fontSize: 16,
+    marginTop: 28,
+    marginBottom: 8,
+  },
+  abilities: {
+    color: colors.offWhite,
+    fontFamily: MONOSPACE_FONT_FAMILY,
+    fontSize: 14,
+    textTransform: 'capitalize',
+  },
+  statsBlock: {
+    gap: 10,
+  },
+  statRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+  },
+  statLabel: {
+    color: colors.offWhiteMuted,
+    fontFamily: HEADING_FONT_FAMILY,
+    fontSize: 12,
+    width: 84,
+  },
+  statTrack: {
+    flex: 1,
+    height: 8,
+    borderRadius: 2,
+    backgroundColor: colors.statTrack,
+    overflow: 'hidden',
+  },
+  statFill: {
+    height: '100%',
+    borderRadius: 2,
+  },
+  statValue: {
+    color: colors.offWhite,
+    fontFamily: MONOSPACE_FONT_FAMILY,
+    fontSize: 12,
+    width: 30,
+    textAlign: 'right',
   },
   button: {
     backgroundColor: colors.pokedexRed,
     paddingHorizontal: 24,
     paddingVertical: 12,
     borderRadius: 4,
+    alignSelf: 'flex-start',
+    marginTop: 28,
   },
   buttonText: {
     color: colors.offWhite,
